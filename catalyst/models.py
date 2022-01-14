@@ -1,5 +1,58 @@
-from app import db
+from app import db, login
 from sqlalchemy import ForeignKeyConstraint
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # User Authentication fields
+    email = db.Column(db.String(255, collation='NOCASE'), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+
+    # User fields
+    active = db.Column(db.Boolean(), default=True)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    customer = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)
+
+    # Relationships
+    roles = db.relationship('Role', secondary='user_roles')
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+    @property
+    def is_active(self):
+        # override UserMixin property which always returns true
+        # return the value of the active column instead
+        return self.active
+
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+
+# Define the Role data-model
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+# Define the UserRoles association table
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
 
 
 class Customer(db.Model):
@@ -7,6 +60,7 @@ class Customer(db.Model):
 
     id = db.Column(db.String(20), primary_key=True)
     name = db.Column(db.String(64))
+    database_name = db.Column(db.String, nullable=False)
 
 
 class GoLive(db.Model):
@@ -14,8 +68,12 @@ class GoLive(db.Model):
 
     id = db.Column(db.String(20), primary_key=True)
     name = db.Column(db.String(64))
-    customer = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)
-    database_name = db.Column(db.String)
+    customer_id = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)
+    database_name = db.Column(db.String())
+    go_live_date = db.Column(db.Date)
+    last_generated = db.Column(db.DateTime)
+
+    customer = db.relationship('Customer', foreign_keys='GoLive.customer_id')
 
 
 class Entity(db.Model):
@@ -24,12 +82,13 @@ class Entity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     entity = db.Column(db.String(255), nullable=False)
     golive = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=False)
-    name = db.Column(db.String(255))
     description = db.Column(db.String(255))
     source_view = db.Column(db.String(500))
     target_system = db.Column(db.String(500))
     validation_json = db.Column(db.String)
     scope_column = db.Column(db.String(255))
+    allow_unknown = db.Column(db.Boolean, default=True)
+    code_column = db.Column(db.String(255), nullable=False)
 
     __table_args__ = (
         # combination of entity & golive must be unique
@@ -51,12 +110,7 @@ class EntityField(db.Model):
     default_value = db.Column(db.String)
     source_field = db.Column(db.String)
     translation_key = db.Column(db.String(255))
-
-
-    __table_args__ = (
-        # combination of entity & field must be unique
-        db.UniqueConstraint('entity', 'field'),
-    )
+    regex_validation = db.Column(db.String)
 
 
 class Translation(db.Model):
@@ -72,3 +126,25 @@ class Translation(db.Model):
         # combination of golive, translation_key & from_value must be unique
         db.UniqueConstraint('golive', 'translation_key', 'from_value'),
     )
+
+
+class CleansingRule(db.Model):
+    __tablename__ = 'cleansing_rules'
+
+    id = db.Column(db.Integer, primary_key=True)
+    entity_field = db.Column(db.Integer, db.ForeignKey('entity_fields.id'), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    rule = db.Column(db.String)
+    active = db.Column(db.Boolean())
+
+
+class Task(db.Model):
+    __tablename__ = 'tasks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(255), nullable=False)
+    parameters = db.Column(db.String, nullable=False)
+    status = db.Column(db.String(255), default='pending')
+    message = db.Column(db.String)
+    created = db.Column(db.DateTime, nullable=False)
+    completed = db.Column(db.DateTime)

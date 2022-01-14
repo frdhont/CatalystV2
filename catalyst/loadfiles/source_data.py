@@ -5,7 +5,7 @@ import config
 
 def get_source_data(entity):
     golive = GoLive.query.get(entity.golive)
-    db = golive.database_name
+    db = golive.customer.database_name
 
     conn = config.sql_connect(db)
     conn = conn.connect()

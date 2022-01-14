@@ -17,7 +17,7 @@ def sql_connect(db=None):
     else:
         sql_db = db
 
-    uri = os.getenv('CATALYST_SQL_DB_URI')
+    #uri = os.getenv('CATALYST_SQL_DB_URI')
     try:
         # conn = create_engine(uri, fast_executemany=True, pool_pre_ping=True)
         conn = create_engine("mssql+pyodbc:///?odbc_connect={}".format(urllib.parse.quote_plus(
