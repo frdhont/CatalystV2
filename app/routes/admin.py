@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, redirect, url_for, request
 from app.forms import LoginForm, SignupForm
-from catalyst.models import User, Task
+from catalyst.models import User, Task, Customer
 from flask_login import current_user, login_user, logout_user
 from werkzeug.urls import url_parse
 from werkzeug.routing import BuildError
@@ -41,3 +41,13 @@ def admin_tasks():
 
 
     return render_template('admin/tasks.html', nbar='admin', **locals())
+
+
+@app.route('/admin/customers', methods=['GET', 'POST'])
+@login_required
+# @roles_required('admin')
+def admin_customers():
+    customers = Customer.query.all()
+
+
+    return render_template('admin/customers.html', nbar='admin', **locals())

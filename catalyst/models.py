@@ -74,7 +74,7 @@ class GoLive(db.Model):
     go_live_date = db.Column(db.Date)
     last_generated = db.Column(db.DateTime)
 
-    customer = db.relationship('Customer', foreign_keys='GoLive.customer_id')
+    customer = db.relationship('Customer', backref=backref("entities", lazy="dynamic"), foreign_keys='GoLive.customer_id')
 
 
 class Entity(db.Model):
