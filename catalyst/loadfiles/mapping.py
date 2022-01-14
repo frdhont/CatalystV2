@@ -5,7 +5,7 @@ from collections import defaultdict
 
 
 def map_entity(entity):
-    print('### Mapping ' + entity.entity + ' for golive ' + entity.golive)
+    print('### Mapping ' + entity.entity_id + ' for golive ' + entity.golive)
 
     # fetch fields that need to be mapped
     fields = EntityField.query.filter_by(entity=entity.id)

@@ -61,3 +61,12 @@ class SignupForm(FlaskForm):
     ])
     confirm = PasswordField('Confirm Password')
     #accept_tos = BooleanField('I accept the TOS', [validators.DataRequired()])
+
+
+class CleansingForm(FlaskForm):
+    golive = StringField('Go live', validators=[validators.DataRequired()])
+    entity = StringField('Entity', validators=[validators.DataRequired()])
+    field = DateField('Field', validators=[validators.DataRequired()])
+    description = StringField('Description', validators=[validators.DataRequired()])
+    rule = StringField('Rule', validators=[validators.DataRequired()])
+    active = BooleanField('Active')

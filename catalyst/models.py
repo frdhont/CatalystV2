@@ -1,5 +1,6 @@
 from app import db, login
 from sqlalchemy import ForeignKeyConstraint
+from sqlalchemy.orm import backref
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -100,7 +101,7 @@ class EntityField(db.Model):
     __tablename__ = 'entity_fields'
 
     id = db.Column(db.Integer, primary_key=True)
-    entity = db.Column(db.Integer, nullable=False)
+    entity_id = db.Column(db.Integer, db.ForeignKey('entities.id'), nullable=False)
     field = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)
     precision = db.Column(db.Integer)
@@ -111,6 +112,8 @@ class EntityField(db.Model):
     source_field = db.Column(db.String)
     translation_key = db.Column(db.String(255))
     regex_validation = db.Column(db.String)
+
+    entity = db.relationship("Entity", backref=backref("entities", lazy="dynamic"))
 
 
 class Translation(db.Model):
@@ -132,10 +135,15 @@ class CleansingRule(db.Model):
     __tablename__ = 'cleansing_rules'
 
     id = db.Column(db.Integer, primary_key=True)
-    entity_field = db.Column(db.Integer, db.ForeignKey('entity_fields.id'), nullable=False)
+    # golive = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=False)
+
+    entity_field_id = db.Column(db.Integer, db.ForeignKey('entity_fields.id'), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     rule = db.Column(db.String)
     active = db.Column(db.Boolean())
+
+    # entity_id = db.Column(db.Integer, nullable=False)
+    entity_field = db.relationship("EntityField", backref=backref("entity_fields", lazy="dynamic"))
 
 
 class Task(db.Model):

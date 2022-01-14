@@ -52,7 +52,7 @@ def entities_edit(entity_id):
     # fill edit form
     form.golive.choices = [(entity.golive, entity.golive)]
     form.golive.data = entity.golive
-    form.entity.data = entity.entity
+    form.entity.data = entity.entity_id
     form.validation_json.data = entity.validation_json
     form.description.data = entity.description
 
@@ -81,7 +81,7 @@ def entities_fields(entity_id):
     entity = Entity.query.get(entity_id)
 
     if entity is not None:
-        fields = EntityField.query.filter_by(entity=entity.id)
+        fields = EntityField.query.filter_by(entity_id=entity.id)
 
 
         # fetch all translation keys and pass to form
@@ -98,7 +98,7 @@ def entities_fields(entity_id):
                 print(form.translation_key.data)
                 #print(form.translation_key.data.type)
 
-                field = EntityField(entity=entity_id, field=form.field.data, precision=form.precision.data,
+                field = EntityField(entity_id=entity_id, field=form.field.data, precision=form.precision.data,
                                     allow_null=form.allow_null.data, description=form.description.data,
                                     mapping_type=form.mapping_type.data, default_value=form.default.data,
                                     source_field=form.source_field.data, translation_key=form.translation_key.data,
@@ -118,7 +118,7 @@ def entities_preview(entity_id):
     golive = GoLive.query.get(entity.golive)
 
     if entity is not None:
-        sql = 'select top 100 * from ' + golive.customer.database_name + '.loadfiles.' + entity.golive + '_' + entity.entity
+        sql = 'select top 100 * from ' + golive.customer.database_name + '.loadfiles.' + entity.golive + '_' + entity.entity_id
 
         conn = config.sql_connect(db=golive.customer.database_name)
         conn = conn.connect()

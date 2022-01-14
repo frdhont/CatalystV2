@@ -28,7 +28,7 @@ def generate_migration_dashboard(customer_id):
             for ent in entities:
 
                 golive.append(ent.golive)
-                entity.append(ent.entity)
+                entity.append(ent.entity_id)
 
                 try:
                     sql = 'select count(0) count from ' + ent.source_view
@@ -44,7 +44,7 @@ def generate_migration_dashboard(customer_id):
                     in_scope.append(0)
 
                 try:
-                    sql = 'select count(0) count from loadfiles.' + ent.golive + '_' + ent.entity + \
+                    sql = 'select count(0) count from loadfiles.' + ent.golive + '_' + ent.entity_id + \
                           ' where validation_succesful = 1'
                     df = pd.read_sql(sql, conn)
                     loadfile.append(df['count'].iloc[0])
@@ -52,7 +52,7 @@ def generate_migration_dashboard(customer_id):
                     loadfile.append(0)
 
                 try:
-                    sql = 'select count(0) count from loadfiles.' + ent.golive + '_' + ent.entity + \
+                    sql = 'select count(0) count from loadfiles.' + ent.golive + '_' + ent.entity_id + \
                           ' where validation_succesful = 0'
                     df = pd.read_sql(sql, conn)
                     issues.append(df['count'].iloc[0])

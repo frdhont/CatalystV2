@@ -11,7 +11,7 @@ def generate_data_issues(customer):
     entities = Entity.query.filter(Entity.golive.in_(golives))
     entities = [e.id for e in entities]
 
-    fields = EntityField.query.filter(EntityField.entity.in_(entities))
+    fields = EntityField.query.filter(EntityField.entity_id.in_(entities))
     fields = [f.id for f in fields]
 
     rules = CleansingRule.query.filter(CleansingRule.entity_field.in_(fields))
@@ -22,13 +22,13 @@ def generate_data_issues(customer):
 
     for r in rules:
         field = EntityField.query.filter_by(id=r.entity_field).first()
-        entity = Entity.query.filter_by(id=field.entity).first()
+        entity = Entity.query.filter_by(id=field.entity_id).first()
 
         conn = config.sql_connect('mock_db')
         conn = conn.connect()
 
         with conn:
-            df = pd.read_sql('select * from loadfiles.' + entity.golive + '_' + entity.entity, conn)
+            df = pd.read_sql('select * from loadfiles.' + entity.golive + '_' + entity.entity_id, conn)
             # print(df)
 
         issue = pd.DataFrame(columns=['code', 'issue', 'value'])
@@ -37,7 +37,7 @@ def generate_data_issues(customer):
         issue['value'] = df_filtered[field.field]
         issue['issue'] = r.description
         issue['rule_id'] = r.id
-        issue['entity'] = entity.entity
+        issue['entity'] = entity.entity_id
         issue['field'] = field.field
         issue['golive'] = entity.golive
         # df_filtered = df_filtered.rename(columns={field: "value"})

@@ -32,8 +32,8 @@ def create(gl):
             conn = conn.connect()
 
             with conn:
-                validated_lf.to_sql(entity.golive + '_' + entity.entity, conn, schema='loadfiles', if_exists='replace', index=False)
-                cleaned_lf.to_sql(entity.golive + '_' + entity.entity, conn, schema='loadfiles_validated', if_exists='replace', index=False)
+                validated_lf.to_sql(entity.golive + '_' + entity.entity_id, conn, schema='loadfiles', if_exists='replace', index=False)
+                cleaned_lf.to_sql(entity.golive + '_' + entity.entity_id, conn, schema='loadfiles_validated', if_exists='replace', index=False)
 
     golive.last_generated = datetime.now()
     db.session.commit()

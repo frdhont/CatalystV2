@@ -8,4 +8,7 @@ from catalyst.models import UserRoles, Role, User, Task, CleansingRule, Entity, 
 from catalyst.reporting import generate_migration_dashboard, get_migration_dashboard
 from catalyst.data_cleaning import generate_data_issues
 
-generate_data_issues('MOCK')
+cleansing_rules = CleansingRule.query.all()
+
+for c in cleansing_rules:
+    print(c.entity_field.entity.golive)
