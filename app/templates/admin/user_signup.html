@@ -1,0 +1,61 @@
+{% include "header.html" %}
+
+    <div class="flex-fill d-flex flex-column justify-content-center py-4">
+      <div class="container-tight py-6">
+	  
+	  {% if user_exists == True %}
+	  <div class="alert alert alert-danger">
+			There already is an account registered with this e-mail address.
+		</div>
+	  {% endif %}
+	  
+	  {% for field, errors in form.errors.items() %}
+		<div class="alert alert alert-danger">
+			{{ form[field].label }}: {{ ', '.join(errors) }}
+		</div>
+		{% endfor %}
+	  
+        <form class="card card-md" method="post">
+		{{ form.hidden_tag() }}
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">Create new account</h2>
+            <div class="mb-3">
+              <label class="form-label">{{ form.email.label }}</label>
+              {{ form.email(class_="form-control") }}
+            </div>
+			 <div class="mb-3">
+              <label class="form-label">{{ form.firstName.label }}</label>
+              {{ form.firstName(class_="form-control") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.lastName.label }}</label>
+              {{ form.lastName(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">{{ form.password.label }}</label>
+              {{ form.password(class_="form-control") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.confirm.label }}</label>
+              {{ form.confirm(class_="form-control") }}
+            </div>
+			<!--
+            <div class="mb-3">
+              <label class="form-check">
+                <input type="checkbox" class="form-check-input"/>
+                <span class="form-check-label">Agree the <a href="./terms-of-service.html" tabindex="-1">terms and policy</a>.</span>
+              </label>
+            </div>
+			-->
+            <div class="form-footer">
+              <button type="submit" class="btn btn-primary w-100">Create new account</button>
+            </div>
+          </div>
+        </form>
+        <div class="text-center text-muted mt-3">
+          Already have account? <a href="{{ url_for('login') }}" tabindex="-1">Sign in</a>
+        </div>
+      </div>
+
+
+{% include "footer.html" %}

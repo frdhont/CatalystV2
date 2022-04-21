@@ -1,0 +1,84 @@
+{% include "header.html" %}
+
+
+      <div class="page-wrapper">
+        <div class="container-fluid">
+          <!-- Page title -->
+          <div class="page-header d-print-none">
+            <div class="row align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Data transformation
+                </div>
+                <h2 class="page-title">
+                  Entity data preview
+                </h2>
+              </div>
+              <!-- Page title actions -->
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="container-fluid">
+            <div class="row row-deck row-cards">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">{{ entity.golive }} - {{ entity.entity }}</h3>
+                  </div>
+				  
+				  {% if does_not_exist == True %}
+				  
+					<div class="card-body">
+                    No loadfile generated yet.
+                  </div>
+				  {% else %}
+				  <div class="card-body">
+                    Showing top 100 records
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table card-table table-vcenter text-nowrap datatable" id="table">
+                      <thead>
+                        <tr>
+                           {% for col in column_names %}
+							<th>{{col}}</th>
+							{% endfor %}
+                        </tr>
+                      </thead>
+                      <tbody>
+					  {% for row in row_data %}
+						<tr>
+							{% for col, row_ in zip(column_names, row) %}
+							
+								{% if col == 'errors' %}
+									<td>{{row_}}</td>
+								{% else %}
+									<td>{{row_}}</td>
+								{% endif %}
+							{% endfor %}
+						</tr>
+					{% endfor %}
+
+                      </tbody>
+                    </table>
+                  </div>
+				  
+				  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<script>
+$(document).ready( function () {
+    $('#table').DataTable({
+		colReorder: true,
+		"scrollX": true
+	});
+} );
+</script>
+
+{% include "footer.html" %}
+

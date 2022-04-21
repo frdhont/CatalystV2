@@ -1,14 +1,22 @@
 from app import db
-from catalyst import process_all_tasks
-from catalyst.loadfiles import create
-import pandas as pd
+from catalyst.data_cleaning import create_cerberus_validation_dict, generate_cerberus_data_issues
 import config
-from catalyst.loadfiles.validate import create_validation_dict
-from catalyst.models import UserRoles, Role, User, Task, CleansingRule, Entity, EntityField
-from catalyst.reporting import generate_migration_dashboard, get_migration_dashboard
-from catalyst.data_cleaning import generate_data_issues
+import pandas as pd
+from cerberus import Validator
+import json
+from catalyst.loadfiles import get_loadfile
 
-cleansing_rules = CleansingRule.query.all()
+get_loadfile(2)
 
-for c in cleansing_rules:
-    print(c.entity_field.entity.golive)
+
+
+
+# create_cerberus_validation_dict(2)
+generate_cerberus_data_issues(2)
+
+
+
+# df = pd.read_sql('select [rule], criteria from cleansing_rules', conn)
+#print(df)
+
+

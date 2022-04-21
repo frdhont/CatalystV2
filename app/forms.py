@@ -10,7 +10,7 @@ class EntityForm(FlaskForm):
     description = StringField('Description', filters=[lambda x: x or None], widget=TextArea())
     target_system = StringField('Target system')
     source_view = StringField('Source view', validators=[validators.DataRequired()])
-    scope_column = StringField('Scope column', validators=[validators.DataRequired()])
+    # scope_column = StringField('Scope column', validators=[validators.DataRequired()])
     validation_json = TextAreaField('Validation JSON', render_kw={"rows": 10, "cols": 11})
     allow_unknown = BooleanField('Allow unknown fields')
 

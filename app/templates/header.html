@@ -1,0 +1,166 @@
+<!doctype html>
+<!--
+* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
+* @version 1.0.0-beta3
+* @link https://tabler.io
+* Copyright 2018-2021 The Tabler Authors
+* Copyright 2018-2021 codecalm.net Paweł Kuna
+* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Catalyst</title>
+    <!-- CSS files -->
+    <link href="{{ url_for('static', filename='dist/css/tabler.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='dist/css/tabler-flags.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='dist/css/tabler-payments.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='dist/css/tabler-vendors.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='dist/css/demo.min.css') }}" rel="stylesheet"/>
+	
+	<!-- jQuery -->
+	<script
+			  src="https://code.jquery.com/jquery-3.6.0.min.js"
+			  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+			  crossorigin="anonymous">
+	</script>
+	
+	<!-- Datatables -->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+	
+	<style>
+	.dataTables_wrapper .dataTables_info {
+	  padding-top: 1em;
+	  padding-left: 1em;
+	}
+
+
+	.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+	  padding-left: 1em;
+	}
+
+	.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+	  padding-right: 1em;
+	}
+	</style>
+	
+	<!-- GridJS -->
+	
+	
+  </head>
+  <body class="antialiased">
+    <div class="wrapper">
+      <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <h1 class="navbar-brand navbar-brand-autodark">
+            <a href=".">
+              <img src="{{ url_for('static', filename='catalyst-logo.png') }}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+            </a>
+          </h1>
+          <div class="collapse navbar-collapse" id="navbar-menu">
+            <ul class="navbar-nav pt-lg-3">
+              <li class="nav-item {% if nbar == 'index' %}active{% endif %}">
+                <a class="nav-link" href="{{ url_for('index') }}" >
+                  <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                  </span>
+                  <span class="nav-link-title">
+                    Home
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item dropdown {% if nbar == 'transformation' %}active{% endif %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /><line x1="16" y1="5.25" x2="8" y2="9.75" /></svg>
+                  </span>
+                  <span class="nav-link-title">
+                    Data transformation
+                  </span>
+                </a>
+                <div class="dropdown-menu {% if nbar == 'transformation' %}show{% endif %}">
+                  <div class="dropdown-menu-columns">
+                    <div class="dropdown-menu-column">
+                      <a class="dropdown-item" href="{{ url_for('golives') }}" >
+                        Go-lives
+                      </a>
+                      <a class="dropdown-item " href="{{ url_for('entities') }}" >
+                        Entities
+                      </a>
+                      <a class="dropdown-item" href="{{ url_for('translations') }}" >
+                        Data translations
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </li>
+			  <li class="nav-item dropdown {% if nbar == 'validation' %}active{% endif %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/checkbox -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                  </span>
+                  <span class="nav-link-title">
+                    Validation
+                  </span>
+                </a>
+                <div class="dropdown-menu {% if nbar == 'validation' %}show{% endif %}">
+                  <div class="dropdown-menu-columns">
+                    <div class="dropdown-menu-column">
+                      <a class="dropdown-item" href="{{ url_for('validation_data_issues') }}" >
+                        Data issues
+                      </a>
+                      <a class="dropdown-item " href="{{ url_for('cleansing_rules') }}" >
+                        Cleansing rules
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </li>
+             <li class="nav-item dropdown {% if nbar == 'admin' %}active{% endif %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /><line x1="16" y1="5.25" x2="8" y2="9.75" /></svg>
+                  </span>
+                  <span class="nav-link-title">
+                    Admin panel
+                  </span>
+                </a>
+                <div class="dropdown-menu {% if nbar == 'admin' %}show{% endif %}">
+                  <div class="dropdown-menu-columns">
+                    <div class="dropdown-menu-column">
+						<a class="dropdown-item" href="{{ url_for('admin_tasks') }}" >
+							Tasks
+						</a>
+						<a class="dropdown-item " href="{{ url_for('admin_customers') }}" >
+							Customers
+						</a>
+						<a class="dropdown-item" href="{{ url_for('admin_users') }}" >
+							User accounts
+						</a>
+                      
+                    </div>
+                  </div>
+                </div>
+              </li>
+			  <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout') }}" >
+                  <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/logout -->
+	<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
+                  </span>
+                  <span class="nav-link-title">
+                    Logout
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+	  
+	  

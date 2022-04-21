@@ -4,7 +4,7 @@ from flask_login import login_required
 from catalyst.models import Task
 from datetime import datetime
 
-@app.route('/tasks/create')
+@app.route('/tasks/create_loadfiles')
 @login_required
 # @roles_required('admin')
 def tasks_create():

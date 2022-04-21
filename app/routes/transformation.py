@@ -5,6 +5,7 @@ from catalyst import create_task
 from catalyst.models import Entity, GoLive, Translation, EntityField
 from catalyst.loadfiles.validate import create_validation_dict
 from flask_login import current_user, login_required
+import sqlalchemy.exc
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 import config
 import pandas as pd
@@ -22,15 +23,20 @@ def entities():
     form = EntityForm()
     form.golive.choices = [(gl.id, gl.id) for gl in golives]
 
-
     if form.validate_on_submit():
         entity = Entity(golive=form.golive.data, entity=form.entity.data, description=form.description.data,
                         target_system=form.target_system.data, source_view=form.source_view.data,
-                        scope_column=form.scope_column.data)
-        db.session.add(entity)
-        db.session.commit()
+                        # scope_column=form.scope_column.data
+                        )
 
-    entities = Entity.query.filter(Entity.golive.in_(allowed_golives)).all()
+        try:
+            db.session.add(entity)
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            db.session.rollback()
+            entity_already_exists = 1
+
+    entities = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).all()
 
     return render_template('transformation/entities.html', nbar='transformation', **locals())
 
@@ -50,12 +56,11 @@ def entities_edit(entity_id):
     form = EntityForm()
 
     # fill edit form
-    form.golive.choices = [(entity.golive, entity.golive)]
-    form.golive.data = entity.golive
-    form.entity.data = entity.entity_id
+    form.golive.choices = [(entity.golive_id, entity.golive_id)]
+    form.golive.data = entity.golive_id
+    form.entity.data = entity.entity
     form.validation_json.data = entity.validation_json
     form.description.data = entity.description
-
 
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -115,10 +120,10 @@ def entities_fields(entity_id):
 @login_required
 def entities_preview(entity_id):
     entity = Entity.query.get(entity_id)
-    golive = GoLive.query.get(entity.golive)
+    golive = GoLive.query.get(entity.golive_id)
 
     if entity is not None:
-        sql = 'select top 100 * from ' + golive.customer.database_name + '.loadfiles.' + entity.golive + '_' + entity.entity_id
+        sql = 'select top 100 * from ' + golive.customer.database_name + '.loadfiles.' + entity.golive_id + '_' + entity.entity
 
         conn = config.sql_connect(db=golive.customer.database_name)
         conn = conn.connect()
@@ -145,7 +150,7 @@ def golives():
     form = GoLiveForm()
 
     if form.validate_on_submit():
-        golive = GoLive(id=form.golive.data, name=form.name.data, database_name=form.database_name.data,
+        golive = GoLive(id=form.golive.data, name=form.name.data,
                         customer_id=current_user.customer, go_live_date=form.go_live_date.data)
         db.session.add(golive)
         db.session.commit()

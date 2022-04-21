@@ -1,0 +1,91 @@
+{% include "header.html" %}
+
+      <div class="page-wrapper">
+        <div class="container-fluid">
+          <!-- Page title -->
+          <div class="page-header d-print-none">
+            <div class="row align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Data validation {{ golive.id }}
+                </div>
+                <h2 class="page-title">
+                  Data issues
+                </h2>
+              </div>
+              <!-- Page title actions -->
+			  <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <a href="{{ url_for('golives', regenerate_data=golive.id) }}" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add">
+					<!-- Download SVG icon from http://tabler-icons.io/i/wand -->
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="6 21 21 6 18 3 3 18 6 21" /><line x1="15" y1="6" x2="18" y2="9" /><path d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" /><path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" /></svg>
+                    Generate data issues
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="container-fluid">
+            <div class="row row-deck row-cards">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Data issues</h3>
+                  </div>
+				  {{ does_not_exist }}
+				  {% if does_not_exist == True %}
+				  
+					<div class="card-body">
+                    No data issues generated yet.
+                  </div>
+				  {% else %}
+				  <div class="card-body">
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table card-table table-vcenter text-nowrap datatable" id="table">
+                      <thead>
+                        <tr>
+                           {% for col in column_names %}
+							<th>{{col}}</th>
+							{% endfor %}
+                        </tr>
+                      </thead>
+                      <tbody>
+					  {% for row in row_data %}
+						<tr>
+							{% for col, row_ in zip(column_names, row) %}
+							
+								{% if col == 'errors' %}
+									<td>{{row_}}</td>
+								{% else %}
+									<td>{{row_}}</td>
+								{% endif %}
+							{% endfor %}
+						</tr>
+					{% endfor %}
+
+                      </tbody>
+                    </table>
+                  </div>
+				  
+				  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<script>
+$(document).ready( function () {
+    $('#table').DataTable({
+		colReorder: true,
+		"scrollX": true
+	});
+} );
+</script>
+
+{% include "footer.html" %}
+

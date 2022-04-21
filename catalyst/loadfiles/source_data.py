@@ -4,8 +4,8 @@ import config
 
 
 def get_source_data(entity):
-    golive = GoLive.query.get(entity.golive)
-    db = golive.customer.database_name
+    # golive = GoLive.query.get(entity.golive_id)
+    db = entity.golive.customer.database_name
 
     conn = config.sql_connect(db)
     conn = conn.connect()

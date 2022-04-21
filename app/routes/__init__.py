@@ -14,15 +14,16 @@ def index():
     golive_count = golives.count()
 
     allowed_golives = [gl.id for gl in golives]
-    entity_count = Entity.query.filter(Entity.golive.in_(allowed_golives)).count()
+    entity_count = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).count()
 
     try:
         dashboard, labels, legacy_values, scope_values, loadfile_values, issues_values = get_migration_dashboard(current_user.customer)
+
+        if dashboard.empty:
+            dashboard_available = False
     except TypeError:
         dashboard_available = False
-
-    if dashboard.empty:
+    except UnboundLocalError:
         dashboard_available = False
-
 
     return render_template('index.html', nbar='index', **locals())

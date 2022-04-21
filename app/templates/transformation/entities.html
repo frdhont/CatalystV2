@@ -1,0 +1,159 @@
+{% include "header.html" %}
+
+
+      <div class="page-wrapper">
+        <div class="container-fluid">
+          <!-- Page title -->
+          <div class="page-header d-print-none">
+            <div class="row align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Data transformation
+                </div>
+                <h2 class="page-title">
+                  Entities
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-add">
+                    <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    Create new entity
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="container-fluid">
+            <div class="row row-deck row-cards">
+			
+			 {% if entity_already_exists %}
+			<div class="col-12">
+				<div class="alert alert-danger" role="alert">
+					<h4 class="alert-title">Error</h4>
+					<div class="text-muted">Entity already exists</div>
+				</div>
+			</div>
+			{% endif %}
+			
+			
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Entities</h3>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table card-table table-vcenter text-nowrap datatable">
+                      <thead>
+                        <tr>
+                          <th>Go live</th>
+                          <th>Entity</th>
+                          <th>Description</th>
+                          <th>Target system</th>
+                          <th>Source view</th>
+						  <th>Allow unknown fields</th>
+						  <th>Validation JSON</th>
+						  <th>Actions</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+					  {% for e in entities %}
+                        <tr>
+                          <td>{{ e.golive }}</td>
+                          <td>{{ e.entity }}</td>
+						  <td>{{ e.description if e.description}}</td>
+						  <td>{{ e.target_system }}</td>
+						  <td>{{ e.source_view }}</td>
+						  <td>{{ e.allow_unknown }}</td>
+						  <td>{% if  e.validation_json %}Present{% else %}Not present{% endif %}</td>
+                          <td class="text-end">
+							<a href="{{ url_for('entities_edit', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
+								<!-- Download SVG icon from http://tabler-icons.io/i/edit -->
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+								Edit
+							</a>
+							<a href="{{ url_for('entities_fields', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
+								<!-- Download SVG icon from http://tabler-icons.io/i/arrow-up-right -->
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="17" y1="7" x2="7" y2="17" /><polyline points="8 7 17 7 17 16" /></svg>
+								Fields
+							</a>
+							<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
+								<!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="2" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
+								Preview
+							</a>
+							<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
+								<!-- Download SVG icon from http://tabler-icons.io/i/circle-x -->
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4m0 -4l-4 4" /></svg>
+								Issues
+							</a>
+                          </td>
+                        </tr>
+						{% endfor %}
+
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+	<div class="modal modal-blur fade" id="modal-add" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New entity</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+		  <form method="post">
+		  {{ form.csrf_token }}
+			<div class="mb-3">
+              <label class="form-label">{{ form.golive.label }}</label>
+              {{ form.golive(class_="form-select") }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">{{ form.entity.label }}</label>
+              {{ form.entity(class_="form-control") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.description.label }}</label>
+              {{ form.description(class_="form-control") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.target_system.label }}</label>
+              {{ form.target_system(class_="form-control") }}
+            </div>
+			
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">{{ form.source_view.label }}</label>
+                  {{ form.source_view(class_="form-control") }}
+                </div>
+              </div>
+            </div>
+          </div>
+		  <div class="card-footer text-end">
+			  <div class="d-flex">
+				<button type="submit" class="btn btn-primary ms-auto">Add</button>
+			  </div>
+		  </div>
+		  </form>
+        </div>
+      </div>
+    </div>
+	
+
+{% include "footer.html" %}

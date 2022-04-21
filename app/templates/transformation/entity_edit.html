@@ -1,0 +1,100 @@
+{% include "header.html" %}
+
+
+      <div class="page-wrapper">
+        <div class="container-fluid">
+          <!-- Page title -->
+          <div class="page-header d-print-none">
+            <div class="row align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Data transformation
+                </div>
+                <h2 class="page-title">
+                  Entity edit
+                </h2>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="container-fluid">
+            <div class="row row-deck row-cards">
+			
+			{% if form.validate_on_submit() %}
+			<div class="col-12">
+				<div class="alert alert-success" role="alert">
+					<h4 class="alert-title">Succes!</h4>
+					<div class="text-muted">Entity updated</div>
+				</div>
+			</div>
+			{% endif %}
+			
+			
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Edit {{ entity.golive }} - {{ entity.entity }}</h3>
+                  </div>
+                  <div class="card-body">
+		 <form method="post">
+		 <div class="modal-body">
+		  {{ form.csrf_token }}
+			<div class="mb-3">
+                <label class="form-label">{{ form.golive.label }}</label>
+				<input type="text" class="form-control" placeholder="{{ form.golive.data }}" value="{{ entity.golive }}" disabled>
+            </div>
+            <div class="mb-3">
+				<label class="form-label">{{ form.entity.label }}</label>
+				<input type="text" class="form-control" placeholder="{{ form.entity.data }}" value="{{ entity.entity }}" disabled>
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.description.label }}</label>
+              {{ form.description(class_="form-control", value=entity.description) }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.target_system.label }}</label>
+              {{ form.target_system(class_="form-control", value=entity.target_system) }}
+            </div>
+			
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">{{ form.source_view.label }}</label>
+                  {{ form.source_view(class_="form-control", value=entity.source_view) }}
+                </div>
+              </div>
+			  <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">{{ form.allow_unknown.label }}</label>
+				  {{ form.allow_unknown(checked=entity.allow_unknown, class_="form-check-input") }}
+                </div>
+              </div>
+			  <div class="mb-3">
+              <label class="form-label">{{ form.validation_json.label }}</label>
+              {{ form.validation_json(class_="form-control", value=entity.validation_json) }}
+            </div>
+            </div>
+          </div>
+		  <div class="card-footer">
+			  <div class="d-flex">
+				<a href="{{ url_for('entities_edit', entity_id=entity.id, regenerate_json=1) }}" class="btn btn-link">Regenerate JSON</a>
+				<button type="submit" class="btn btn-primary ms-auto">Save</button>
+			  </div>
+		  </div>
+		  </form>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+	
+
+{% include "footer.html" %}

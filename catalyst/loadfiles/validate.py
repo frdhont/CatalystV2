@@ -7,7 +7,7 @@ import config
 
 def validate_loadfile(loadfile, entity):
     if entity.validation_json is not None:
-        print('### Validating entity ' + entity.entity_id)
+        print('### Validating entity ' + entity.entity)
         v = Validator()
         v.schema = json.loads(entity.validation_json)
         v.allow_unknown = entity.allow_unknown
@@ -27,12 +27,12 @@ def validate_loadfile(loadfile, entity):
             validation_succesful.append(val)
             errors.append(error)
 
-        print('## ' + str(error_count) + ' errors found on ' + entity.entity_id)
+        print('## ' + str(error_count) + ' errors found on ' + entity.entity)
 
         loadfile['validation_succesful'] = validation_succesful
         loadfile['errors'] = errors
     else:
-        print('### Skipping validation, no validation json set for ' + entity.entity_id)
+        print('### Skipping validation, no validation json set for ' + entity.entity)
         loadfile['validation_succesful'] = True
         loadfile['errors'] = None
     return loadfile
@@ -40,7 +40,7 @@ def validate_loadfile(loadfile, entity):
 
 def create_validation_dict(entity_id):
     ent = Entity.query.get(entity_id)
-    fields = EntityField.query.filter_by(entity=entity_id)
+    fields = EntityField.query.filter_by(entity_id=entity_id)
 
     val = {}
 

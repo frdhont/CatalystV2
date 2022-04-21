@@ -5,11 +5,12 @@ from collections import defaultdict
 
 
 def map_entity(entity):
-    print('### Mapping ' + entity.entity_id + ' for golive ' + entity.golive)
+    print('### Mapping ' + entity.entity + ' for golive ' + entity.golive_id)
 
     # fetch fields that need to be mapped
-    fields = EntityField.query.filter_by(entity=entity.id)
-    print(fields)
+    fields = EntityField.query.filter_by(entity_id=entity.id)
+    # fields = EntityField.entity.has(id=entity.id)
+    # print(fields)
 
     if fields.count() > 0:
         field_list = [r.field for r in fields]
@@ -17,6 +18,7 @@ def map_entity(entity):
         # fetch source data & remove out of scope records
         if entity.scope_column is not None:
             source_data = get_source_data(entity).query(entity.scope_column + ' == True')
+            print(source_data)
         else:
             source_data = get_source_data(entity)
 
@@ -70,7 +72,7 @@ def map_entity(entity):
             if field.mapping_type == 'default':
                 print('## Setting field ' + field_name + ' to default \'' + field.default_value + '\'')
                 df[field_name] = field.default_value
-        #print(df)
+        print(df)
 
         return df
 
