@@ -18,7 +18,8 @@ def create(gl):
     print('##### Creating all loadfiles for ' + golive.id)
 
     # fetch all entities for specified golive
-    entities = Entity.query.filter_by(golive=golive.id)
+    # print(golive.id)
+    entities = Entity.query.filter_by(golive_id=golive.id)
 
     # map all entities
     for entity in entities:

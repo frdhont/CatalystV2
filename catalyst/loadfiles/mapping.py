@@ -18,7 +18,7 @@ def map_entity(entity):
         # fetch source data & remove out of scope records
         if entity.scope_column is not None:
             source_data = get_source_data(entity).query(entity.scope_column + ' == True')
-            print(source_data)
+            # print(source_data)
         else:
             source_data = get_source_data(entity)
 
@@ -72,7 +72,11 @@ def map_entity(entity):
             if field.mapping_type == 'default':
                 print('## Setting field ' + field_name + ' to default \'' + field.default_value + '\'')
                 df[field_name] = field.default_value
-        print(df)
+
+        # add code field
+        df['code'] = source_data[entity.code_column]
+        df.insert(0, 'code', df.pop('code'))
+        # print(df)
 
         return df
 

@@ -47,13 +47,12 @@
                           <th>Rule</th>
 						  <th>Active</th>
 						  <th></th>
-
                         </tr>
                       </thead>
                       <tbody>
 					  {% for c in cleansing_rules %}
                         <tr>
-                          <td>{{ c.entity_field.entity.golive }}</td>
+                          <td>{{ c.entity_field.entity.golive_id }}</td>
                           <td>{{ c.entity_field.entity.entity }}</td>
 						  <td>{{ c.entity_field.field }}</td>
 						  <td>{{ c.description if c.description}}</td>
@@ -69,7 +68,7 @@
                   </div>
 				  
 				  <div class="card-footer">
-				  <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html" target="_new">Documentation</a>
+				  <a href="https://docs.python-cerberus.org/en/stable/validation-rules.html" target="_new">Documentation</a>
 				  </div>
 
                 </div>

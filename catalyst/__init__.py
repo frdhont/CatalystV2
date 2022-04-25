@@ -1,5 +1,5 @@
 from catalyst.loadfiles import create
-from catalyst.reporting import generate_migration_dashboard
+from catalyst.reporting import generate_migration_dashboard, data_cleaning
 from catalyst.models import Task
 from app import db
 from datetime import datetime
@@ -39,6 +39,20 @@ def process_task(task):
             generate_migration_dashboard(params)
             task.status = 'completed'
             task.message = 'Migration dashboard updated'
+            task.completed = datetime.now()
+        except ProgrammingError as e:
+            task.status = 'error'
+            task.message = str(e)
+            task.completed = datetime.now()
+
+    elif type == 'generate_data_issues':
+        try:
+            task.status = 'processing'
+            db.session.commit()
+
+            data_cleaning.generate_data_issues(params)
+            task.status = 'completed'
+            task.message = 'Data issues generated'
             task.completed = datetime.now()
         except ProgrammingError as e:
             task.status = 'error'

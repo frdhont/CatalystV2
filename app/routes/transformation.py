@@ -24,7 +24,8 @@ def entities():
     form.golive.choices = [(gl.id, gl.id) for gl in golives]
 
     if form.validate_on_submit():
-        entity = Entity(golive=form.golive.data, entity=form.entity.data, description=form.description.data,
+
+        entity = Entity(golive_id=form.golive.data, entity=form.entity.data, description=form.description.data,
                         target_system=form.target_system.data, source_view=form.source_view.data,
                         # scope_column=form.scope_column.data
                         )

@@ -56,7 +56,6 @@
                           <th>Description</th>
                           <th>Target system</th>
                           <th>Source view</th>
-						  <th>Allow unknown fields</th>
 						  <th>Validation JSON</th>
 						  <th>Actions</th>
 
@@ -65,12 +64,11 @@
                       <tbody>
 					  {% for e in entities %}
                         <tr>
-                          <td>{{ e.golive }}</td>
+                          <td>{{ e.golive_id }}</td>
                           <td>{{ e.entity }}</td>
 						  <td>{{ e.description if e.description}}</td>
 						  <td>{{ e.target_system }}</td>
 						  <td>{{ e.source_view }}</td>
-						  <td>{{ e.allow_unknown }}</td>
 						  <td>{% if  e.validation_json %}Present{% else %}Not present{% endif %}</td>
                           <td class="text-end">
 							<a href="{{ url_for('entities_edit', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
