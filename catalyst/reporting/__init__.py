@@ -19,7 +19,7 @@ def generate_migration_dashboard(customer_id):
 
     for gl in golives:
 
-        entities = Entity.query.filter_by(golive=gl.id).all()
+        entities = Entity.query.filter_by(golive_id=gl.id).all()
 
         conn = config.sql_connect(db=database)
         conn = conn.connect()
@@ -27,8 +27,8 @@ def generate_migration_dashboard(customer_id):
         with conn:
             for ent in entities:
 
-                golive.append(ent.golive)
-                entity.append(ent.entity_id)
+                golive.append(ent.golive_id)
+                entity.append(ent.entity)
 
                 try:
                     sql = 'select count(0) count from ' + ent.source_view
@@ -44,7 +44,7 @@ def generate_migration_dashboard(customer_id):
                     in_scope.append(0)
 
                 try:
-                    sql = 'select count(0) count from loadfiles.' + ent.golive + '_' + ent.entity_id + \
+                    sql = 'select count(0) count from loadfiles.' + ent.golive_id + '_' + ent.entity + \
                           ' where validation_succesful = 1'
                     df = pd.read_sql(sql, conn)
                     loadfile.append(df['count'].iloc[0])
@@ -52,7 +52,7 @@ def generate_migration_dashboard(customer_id):
                     loadfile.append(0)
 
                 try:
-                    sql = 'select count(0) count from loadfiles.' + ent.golive + '_' + ent.entity_id + \
+                    sql = 'select count(0) count from loadfiles.' + ent.golive_id + '_' + ent.entity + \
                           ' where validation_succesful = 0'
                     df = pd.read_sql(sql, conn)
                     issues.append(df['count'].iloc[0])
@@ -63,7 +63,6 @@ def generate_migration_dashboard(customer_id):
     # init dataframe
     db = pd.DataFrame()
 
-
     db['golive'] = golive
     db['entity'] = entity
     db['legacy_count'] = legacy_count
@@ -72,6 +71,8 @@ def generate_migration_dashboard(customer_id):
     db['issues'] = issues
     # db['cleansing'] = cleansing
     db['customer'] = str(customer_id)
+
+    print(db)
 
     conn = config.sql_connect(db=database)
     conn = conn.connect()

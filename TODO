@@ -1,4 +1,6 @@
-- add golive parameters: fixed values per golive that can be referenced when populating loadfiles (would work same way as translationtable)
-- add possibility to run pandas query data validations next to cerberus
-- performance improve data issues?
+- copy entity
+- copy go-live
+- add pytest module
 - pandas lambda function for transformation rules
+- add possibility to run pandas query data validations next to cerberus
+- add admin user role and restrict admin section

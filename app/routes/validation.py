@@ -44,7 +44,7 @@ def validation_data_issues_detail(golive):
     golive = GoLive.query.filter_by(id=golive).first()
 
     if golive is not None:
-        sql = 'select * from reporting.data_issues'
+        sql = 'select * from reporting.' + golive.id + '_DataIssues'
 
         conn = config.sql_connect(db=golive.customer.database_name)
         conn = conn.connect()

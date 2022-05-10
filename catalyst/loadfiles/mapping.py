@@ -1,4 +1,4 @@
-from catalyst.models import EntityField, Translation
+from catalyst.models import EntityField, Translation, ParameterQuery
 import pandas as pd
 from catalyst.loadfiles.source_data import get_source_data
 from collections import defaultdict
@@ -25,7 +25,7 @@ def map_entity(entity):
         # print(source_data)
         df = pd.DataFrame(columns=field_list)
 
-        # map all fields except default
+        # map all fields except default & parameter
         for field in fields:
             field_name = field.field
             source_field = field.source_field
@@ -33,6 +33,7 @@ def map_entity(entity):
             if field.mapping_type == 'one_to_one':
                 if source_field is None or source_field == '':
                     print('## Warning: field ' + field_name + ' set to one to one, but no source field set')
+                    df[field_name] = 'No source field'
                 else:
                     print('## Setting field ' + field_name + ' one to one equal to source field ' + field.source_field)
                     df[field_name] = source_data[source_field]
@@ -41,8 +42,10 @@ def map_entity(entity):
                 translation_key = field.translation_key
                 if translation_key is None or translation_key == '':
                     print('## Warning: field ' + field_name + ' set to translation, but no translation key set')
+                    df[field_name] = 'No translation key'
                 elif source_field is None or source_field == '':
                     print('## Warning: field ' + field_name + ' set to translation, but no source field set')
+                    df[field_name] = 'No source field'
                 else:
                     print('## Setting field ' + field_name + ' as translation from source field ' + field.source_field + ' with key ' + translation_key)
 
@@ -50,6 +53,7 @@ def map_entity(entity):
                     # print(translations)
                     if translations.count() == 0:
                         print('## Warning: no translations of type ' + field.translation_key + ' found for field ' + field_name)
+                        df[field_name] = 'No translations found'
                     else:
                         # create default dict if default value is set
                         if field.default_value is not None:
@@ -69,9 +73,18 @@ def map_entity(entity):
         # map default fields last
         for field in fields:
             field_name = field.field
+
+            if field.mapping_type == 'parameter':
+                # fetch parameter value
+                param = ParameterQuery.get_parameter(parameter=field.parameter, golive_id=field.golive_id
+                                                     , customer_id=entity.golive.customer_id)
+                print('## Setting field ' + field_name + ' to value of parameter \'' + field.parameter + '\': \'' + str(param) + '\'')
+                df[field_name] = param
+
             if field.mapping_type == 'default':
                 print('## Setting field ' + field_name + ' to default \'' + field.default_value + '\'')
                 df[field_name] = field.default_value
+
 
         # add code field
         df['code'] = source_data[entity.code_column]

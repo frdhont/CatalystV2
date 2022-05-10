@@ -107,8 +107,10 @@ def entities_fields(entity_id):
                 field = EntityField(entity_id=entity_id, field=form.field.data, precision=form.precision.data,
                                     allow_null=form.allow_null.data, description=form.description.data,
                                     mapping_type=form.mapping_type.data, default_value=form.default.data,
+                                    parameter=form.parameter.data,
                                     source_field=form.source_field.data, translation_key=form.translation_key.data,
-                                    regex_validation=form.regex_validation.data, type=form.type.data)
+                                    regex_validation=form.regex_validation.data, type=form.type.data,
+                                    golive_id=entity.golive_id)
                 db.session.add(field)
                 db.session.commit()
             else:

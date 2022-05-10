@@ -48,6 +48,7 @@
 						  <th>Allow empty</th>
 						  <th>Mapping type</th>
 						  <th>Default value</th>
+						  <th>Parameter</th>
 						  <th>Source field</th>
 						  <th>Translation key</th>
 						  <th>Regex validation</th>
@@ -63,6 +64,7 @@
 						  <td>{{ f.allow_null }}</td>
 						  <td>{{ f.mapping_type }}</td>
 						  <td>{{ f.default_value if f.default_value }}</td>
+						  <td>{{ f.parameter if f.parameter }}</td>
 						  <td>{{ f.source_field if f.source_field }}</td>
 						  <td>{{ f.translation_key if f.translation_key }}</td>
 						  <td>{{ f.regex_validation if f.regex_validation }}</td>
@@ -142,6 +144,12 @@
 					<div class="mb-3">
 					  <label class="form-label">{{ form.default.label }}</label>
 					  {{ form.default(class_="form-control") }}
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div class="mb-3">
+					  <label class="form-label">{{ form.parameter.label }}</label>
+					  {{ form.parameter(class_="form-control") }}
 					</div>
 				</div>
 				<div class="col-lg-6">

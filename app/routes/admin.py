@@ -13,21 +13,28 @@ from flask_login import current_user, login_required
 @login_required
 # @roles_required('admin')
 def admin_users():
+    print(current_user.email)
+
     users = User.query.all()
+    customers = Customer.query.all()
     form = SignupForm(request.form)
+    choices = [(customer.id, customer.id) for customer in customers]
+    form.customer.choices = [(customer.id, customer.id) for customer in customers]
 
     if request.method == 'POST' and form.validate():
 
-        user = User.objects(email=form.email.data.lower()).first()
+        user = User.query.filter_by(email=form.email.data.lower()).first()
+        print(user)
 
         if user:
             user_exists = True
         else:
-            user = User(email=form.email.data.lower(), firstName=form.first_name.data, lastName=form.last_name.data)
+            user = User(email=form.email.data.lower(), first_name=form.first_name.data, last_name=form.last_name.data)
             user.set_password(form.password.data)
-            user.save()
+            db.session.add(user)
+            db.session.commit()
 
-            return redirect(url_for('login'))
+            return redirect(url_for('admin_users'))
 
     return render_template('admin/users.html', nbar='admin', **locals())
 

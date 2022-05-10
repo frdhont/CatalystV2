@@ -20,9 +20,10 @@ def sql_connect(db=None):
     #uri = os.getenv('CATALYST_SQL_DB_URI')
     try:
         # conn = create_engine(uri, fast_executemany=True, pool_pre_ping=True)
-        conn = create_engine("mssql+pyodbc:///?odbc_connect={}".format(urllib.parse.quote_plus(
+        uri = "mssql+pyodbc:///?odbc_connect={}".format(urllib.parse.quote_plus(
             "DRIVER=ODBC Driver 17 for SQL Server;SERVER={0};PORT=1433;DATABASE={1};UID={2};PWD={3};TDS_Version=8.0;".format(
-                sql_host, sql_db, user, pw))), fast_executemany=True, pool_pre_ping=True)
+                sql_host, sql_db, user, pw)))
+        conn = create_engine(uri, fast_executemany=True, pool_pre_ping=True)
         # print('Succesfully connected to SQL DB')
         return conn
     except Exception as e:

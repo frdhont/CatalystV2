@@ -18,12 +18,16 @@ def index():
 
     try:
         dashboard, labels, legacy_values, scope_values, loadfile_values, issues_values = get_migration_dashboard(current_user.customer)
-
+        print(dashboard)
         if dashboard.empty:
             dashboard_available = False
-    except TypeError:
+    except TypeError as e:
         dashboard_available = False
-    except UnboundLocalError:
+        print('TypeError: ')
+        print(e)
+    except UnboundLocalError as e:
         dashboard_available = False
+        print('UnboundLocalError: ')
+        print(e)
 
     return render_template('index.html', nbar='index', **locals())

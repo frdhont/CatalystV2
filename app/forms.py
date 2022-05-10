@@ -17,13 +17,16 @@ class EntityForm(FlaskForm):
 
 class EntityFieldForm(FlaskForm):
     field = StringField('Field', validators=[validators.DataRequired()])
-    type = SelectField('Type', validators=[validators.DataRequired()], choices=[('string', 'String'), ('integer', 'Integer')
-        , ('float', 'Float'), ('number', 'Number'), ('boolean', 'Boolean'), ('datetime', 'Datetime'), ('date', 'Date')])
+    type = SelectField('Type', validators=[validators.DataRequired()], choices=[('string', 'String')
+        , ('integer', 'Integer'), ('float', 'Float'), ('number', 'Number'), ('boolean', 'Boolean')
+        , ('datetime', 'Datetime'), ('date', 'Date')])
     precision = StringField('Precision')
     description = StringField('Description')
     allow_null = BooleanField('Allow empty')
-    mapping_type = SelectField('Mapping type', validators=[validators.DataRequired()], choices=[('default', 'Default'), ('one_to_one', 'One to one'), ('translation', 'Translation')])
-    default = StringField('Default value', filters=[lambda x: x or None])
+    mapping_type = SelectField('Mapping type', validators=[validators.DataRequired()], choices=[('default', 'Default')
+        , ('one_to_one', 'One to one'), ('translation', 'Translation'), ('parameter', 'Parameter')])
+    default = StringField('Default value', filters=[lambda x: x or None])  # lambda to insert NULL instead of "" to sql
+    parameter = StringField('Parameter', filters=[lambda x: x or None])
     source_field = StringField('Source field', filters=[lambda x: x or None])
     translation_key = SelectField('Translation key',validators=[validators.Optional()], filters=[lambda x: x or None])
     regex_validation = StringField('Regex validation', filters=[lambda x: x or None])
@@ -52,8 +55,8 @@ class LoginForm(FlaskForm):
 class SignupForm(FlaskForm):
 
     email = EmailField('Email', [validators.DataRequired(), validators.Email()])
-    firstName = StringField('First name', [validators.DataRequired()])
-    lastName = StringField('Last name', [validators.DataRequired()])
+    first_name = StringField('First name', [validators.DataRequired()])
+    last_name = StringField('Last name', [validators.DataRequired()])
     customer = StringField('Customer', [validators.DataRequired()])
     password = PasswordField('Password', [
         validators.DataRequired(),

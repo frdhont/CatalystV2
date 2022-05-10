@@ -36,6 +36,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config["SQLALCHEMY_ECHO"] = True  # print sql queries
 app.config['DEBUG'] = True  # enable debugging
 app.config['USER_EMAIL_SENDER_EMAIL'] = 'frdhont@gmail.com'  # enable debugging
 

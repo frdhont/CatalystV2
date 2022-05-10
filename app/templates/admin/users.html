@@ -1,6 +1,7 @@
 {% include "header.html" %}
 
 
+
       <div class="page-wrapper">
         <div class="container-fluid">
           <!-- Page title -->
@@ -31,6 +32,16 @@
         <div class="page-body">
           <div class="container-fluid">
             <div class="row row-deck row-cards">
+			
+			{% if user_exists == True %}
+				<div class="col-12">
+					<div class="alert alert-danger" role="alert">
+						<h4 class="alert-title">Error</h4>
+						<div class="text-muted">A user with that e-mail address already exists</div>
+					</div>
+				</div>
+			{% endif %}
+						
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
@@ -81,91 +92,50 @@
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">New report</h5>
+            <h5 class="modal-title">New user</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Name</label>
-              <input type="text" class="form-control" name="example-text-input" placeholder="Your report name">
-            </div>
-            <label class="form-label">Report type</label>
-            <div class="form-selectgroup-boxes row mb-3">
-              <div class="col-lg-6">
-                <label class="form-selectgroup-item">
-                  <input type="radio" name="report-type" value="1" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label d-flex align-items-center p-3">
-                    <span class="me-3">
-                      <span class="form-selectgroup-check"></span>
-                    </span>
-                    <span class="form-selectgroup-label-content">
-                      <span class="form-selectgroup-title strong mb-1">Simple</span>
-                      <span class="d-block text-muted">Provide only basic data needed for the report</span>
-                    </span>
-                  </span>
-                </label>
-              </div>
-              <div class="col-lg-6">
-                <label class="form-selectgroup-item">
-                  <input type="radio" name="report-type" value="1" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label d-flex align-items-center p-3">
-                    <span class="me-3">
-                      <span class="form-selectgroup-check"></span>
-                    </span>
-                    <span class="form-selectgroup-label-content">
-                      <span class="form-selectgroup-title strong mb-1">Advanced</span>
-                      <span class="d-block text-muted">Insert charts and additional advanced analyses to be inserted in the report</span>
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-lg-8">
-                <div class="mb-3">
-                  <label class="form-label">Report url</label>
-                  <div class="input-group input-group-flat">
-                    <span class="input-group-text">
-                      https://tabler.io/reports/
-                    </span>
-                    <input type="text" class="form-control ps-0"  value="report-01" autocomplete="off">
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4">
-                <div class="mb-3">
-                  <label class="form-label">Visibility</label>
-                  <select class="form-select">
-                    <option value="1" selected>Private</option>
-                    <option value="2">Public</option>
-                    <option value="3">Hidden</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-lg-6">
-                <div class="mb-3">
-                  <label class="form-label">Client name</label>
-                  <input type="text" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="mb-3">
-                  <label class="form-label">Reporting period</label>
-                  <input type="date" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-12">
-                <div>
-                  <label class="form-label">Additional information</label>
-                  <textarea class="form-control" rows="3"></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
+			  <div class="modal-body">
+			  <form method="post">
+			  {{ form.csrf_token }}
+				<div class="mb-3">
+				  <label class="form-label">{{ form.first_name	.label }}</label>
+				  {{ form.first_name(class_="form-control") }}
+				</div>
+				<div class="mb-3">
+				  <label class="form-label">{{ form.last_name.label }}</label>
+				  {{ form.last_name(class_="form-control") }}
+				</div>
+				<div class="mb-3">
+				  <label class="form-label">{{ form.email.label }}</label>
+				  {{ form.email(class_="form-control") }}
+				</div>
+				<div class="mb-3">
+				  <label class="form-label">{{ form.customer.label }}</label>
+				  {{ form.customer(class_="form-select") }}
+				</div>
+				
+			  </div>
+			  <div class="modal-body">
+				<div class="row">
+				  <div class="col-lg-6">
+					<div class="mb-3">
+					  <label class="form-label">{{ form.password.label }}</label>
+					  {{ form.password(class_="form-control") }}
+					</div>
+					<div class="mb-3">
+					  <label class="form-label">{{ form.confirm.label }}</label>
+					  {{ form.confirm(class_="form-control") }}
+					</div>
+				  </div>
+				</div>
+			  </div>
+			  <div class="card-footer text-end">
+			  <div class="d-flex">
+				<button type="submit" class="btn btn-primary ms-auto">Add</button>
+			  </div>
+		  </div>
+		  </form>
         </div>
       </div>
     </div>
