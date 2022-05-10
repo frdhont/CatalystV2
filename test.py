@@ -6,12 +6,14 @@ import pandas as pd
 from cerberus import Validator
 import json
 from catalyst.loadfiles import get_loadfile
-from catalyst.models import Entity, ParameterQuery
+from catalyst.models import Entity, ParameterQuery, GoLive
 from app import db
 import pytest
 #from pytest import TestC
-param = ParameterQuery.get_parameter(parameter='SPOC', golive_id='MO01', customer_id='MOCK')
-print(param)
+
+entity = GoLive.query.get('MO01')
+e = entity.clone(new_golive='CO01')
+print(e)
 """
 # x =
 data = df.apply(lambda id: id + '0')

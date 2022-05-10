@@ -2,6 +2,7 @@ from app import db, login
 # from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import and_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import make_transient
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -82,6 +83,30 @@ class GoLive(db.Model):
     parameters = db.relationship("Parameter", back_populates="golive")
 
     customer = db.relationship('Customer', backref=backref("customers", lazy="dynamic"), foreign_keys='GoLive.customer_id')
+    entities = relationship("Entity", back_populates="golive", cascade="all,delete")
+
+    def clone(self, new_golive):
+        print('Cloning go-live ' + self.id + ' to ' + new_golive)
+        d = dict(self.__dict__)
+        # get old data before deleting it
+        d.pop("id")  # get rid of id
+        d.pop("_sa_instance_state")  # get rid of SQLAlchemy special attr
+
+        # add _COPY suffix to new name
+        d['id'] = new_golive
+        copy = self.__class__(**d)
+
+        try:
+            db.session.add(copy)
+            db.session.commit()  # if you need the id immediately
+        except IntegrityError:
+            return IntegrityError
+
+        # copy all the entities to the new golive
+        for entity in self.entities:
+            entity.clone(new_golive=copy.id)
+
+        return copy
 
 
 class Entity(db.Model):
@@ -98,7 +123,7 @@ class Entity(db.Model):
     allow_unknown = db.Column(db.Boolean, default=True)
     code_column = db.Column(db.String(255), nullable=False, default='code')
     data_cleansing_json = db.Column(db.String)
-    entity_fields = relationship("EntityField", back_populates="entity")
+    entity_fields = relationship("EntityField", back_populates="entity", cascade="all,delete")
     cleansing_rules = relationship("CleansingRule", back_populates="entity")
 
     __table_args__ = (
@@ -106,37 +131,37 @@ class Entity(db.Model):
         db.UniqueConstraint('entity', 'golive_id'),
     )
 
-    golive = db.relationship('GoLive', backref=backref("entity_golives", lazy="dynamic"),
-                             foreign_keys='Entity.golive_id')
+    # golive = db.relationship('GoLive', backref=backref("entity_golives", lazy="dynamic"), foreign_keys='Entity.golive_id')
+    golive = relationship("GoLive", back_populates="entities")
 
-    def clone(id):
-        s = db.session
-        entity = s.query(Entity).get(id)
-        f = None
+    def clone(self, new_golive=None):
+        print('Cloning entity ' + self.entity)
+        d = dict(self.__dict__)
+        # get old data before deleting it
+        d.pop("id")  # get rid of id
+        d.pop("_sa_instance_state")  # get rid of SQLAlchemy special attr
 
-        # You need to get child before expunge agent, otherwise the children will be empty
-        if entity.entity_fields:
-            f = entity.campaigns[0]
-            s.expunge(c)
-            make_transient(c)
-            c.id = None
+        if new_golive is None:
+            d['entity'] = d['entity'] + ' _COPY'    # add _COPY suffix to new name only when copying for the same go-live
+        else:
+            d['golive_id'] = new_golive     # override golive if new_golive is filled
+        copy = self.__class__(**d)
 
-        s.expunge(entity)
-        entity.id = None
+        try:
+            db.session.add(copy)
+            db.session.commit()     # if you need the id immediately
+        except IntegrityError:
+            # rollback & try additional _COPY suffix
+            db.session.rollback()
+            copy.entity = copy.entity + ' _COPY'
+            db.session.add(copy)
+            db.session.commit()
 
-        # I have unique constraint on the following column.
-        entity.name = entity.entity + ' (COPY)'
-        #entity.externalId = - entity.externalId  # Find a number that is not in db.
+        # copy all the fields to the new enttiy
+        for field in self.entity_fields:
+            field.clone(new_id=copy.id, new_golive=new_golive)
 
-        make_transient(entity)
-        s.add(entity)
-        s.commit()  # Commit so the agent will save to database and get an id
-
-        if c:
-            assert entity.id
-            c.entity_id = entity.id  # Attach child to parent (agent_id is a foreign key)
-            s.add(c)
-            s.commit()
+        return copy
 
 
 class EntityField(db.Model):
@@ -161,6 +186,18 @@ class EntityField(db.Model):
     entity = db.relationship("Entity", back_populates="entity_fields")
     golive = db.relationship('GoLive', backref=backref("golives", lazy="dynamic"),
                                foreign_keys='EntityField.golive_id')
+
+    def clone(self, new_id, new_golive=None):
+        # print('Cloning field ' + self.field)
+        d = dict(self.__dict__)
+        d.pop("id")  # get rid of id
+        d.pop("_sa_instance_state")  # get rid of SQLAlchemy special attr
+        d['entity_id'] = new_id
+        if new_golive is not None:
+            d['golive_id'] = new_golive  # to get the correct golive id
+        copy = self.__class__(**d)
+        db.session.add(copy)
+        db.session.commit()  # if you need the id immediately
 
 
 class Translation(db.Model):
