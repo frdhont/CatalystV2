@@ -150,6 +150,10 @@ def golives():
     if regenerate_data:
         create_task('create_loadfiles', regenerate_data)
 
+    clone = request.args.get('clone')
+    if clone:
+        create_task('clone_golive', clone)
+
     form = GoLiveForm()
 
     if form.validate_on_submit():

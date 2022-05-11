@@ -70,27 +70,43 @@
 						  <td>{{ e.target_system }}</td>
 						  <td>{{ e.source_view }}</td>
 						  <td>{% if  e.validation_json %}Present{% else %}Not present{% endif %}</td>
-                          <td class="text-end">
-							<a href="{{ url_for('entities_edit', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
+                          
+						  <td>
+                            <div class="btn-list flex-nowrap">
+                              <a href="{{ url_for('entities_edit', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
 								<!-- Download SVG icon from http://tabler-icons.io/i/edit -->
 								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
 								Edit
-							</a>
-							<a href="{{ url_for('entities_fields', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
-								<!-- Download SVG icon from http://tabler-icons.io/i/arrow-up-right -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="17" y1="7" x2="7" y2="17" /><polyline points="8 7 17 7 17 16" /></svg>
-								Fields
-							</a>
-							<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
-								<!-- Download SVG icon from http://tabler-icons.io/i/eye -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="2" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
-								Preview
-							</a>
-							<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="btn d-none d-sm-inline-block">
-								<!-- Download SVG icon from http://tabler-icons.io/i/circle-x -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4m0 -4l-4 4" /></svg>
-								Issues
-							</a>
+								</a>
+                              <div class="dropdown">
+                                <button class="btn d-none d-sm-inline-block" data-bs-toggle="dropdown">
+									<i class="ti ti-chevron-down"></i>
+</svg>
+                                  Actions
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                  <a href="{{ url_for('entities_fields', entity_id=e.id) }}" class="dropdown-item">
+									<!-- Download SVG icon from http://tabler-icons.io/i/arrow-up-right -->
+									<!--<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="17" y1="7" x2="7" y2="17" /><polyline points="8 7 17 7 17 16" /></svg>-->
+									Fields
+								</a>
+									<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="dropdown-item">
+									<!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+									<!--<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="2" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>-->
+									Preview data
+								</a>
+								<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="dropdown-item">
+									<!-- Download SVG icon from http://tabler-icons.io/i/circle-x -->
+									<!--<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4m0 -4l-4 4" /></svg>-->
+									View issues
+								</a>
+								<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="dropdown-item">
+									<!--<i class="ti ti-copy"></i>-->
+									Clone entity
+								</a>
+                                </div>
+                              </div>
+                            </div>
                           </td>
                         </tr>
 						{% endfor %}

@@ -10,10 +10,11 @@ from catalyst.models import Entity, ParameterQuery, GoLive
 from app import db
 import pytest
 #from pytest import TestC
+from catalyst import create_task, process_all_tasks
 
-entity = GoLive.query.get('MO01')
-e = entity.clone(new_golive='CO01')
-print(e)
+clone = 'MO01,CO01'
+create_task('clone_golive', clone)
+process_all_tasks()
 """
 # x =
 data = df.apply(lambda id: id + '0')

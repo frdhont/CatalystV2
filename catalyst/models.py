@@ -86,10 +86,15 @@ class GoLive(db.Model):
     entities = relationship("Entity", back_populates="golive", cascade="all,delete")
 
     def clone(self, new_golive):
+        if GoLive.query.get(new_golive) is not None:
+            print('Go live ' + new_golive + ' already exists')
+            return None
+
         print('Cloning go-live ' + self.id + ' to ' + new_golive)
         d = dict(self.__dict__)
         # get old data before deleting it
-        d.pop("id")  # get rid of id
+        # d.pop("id")  # get rid of id
+        # d['id'] =
         d.pop("_sa_instance_state")  # get rid of SQLAlchemy special attr
 
         # add _COPY suffix to new name
@@ -138,20 +143,23 @@ class Entity(db.Model):
         print('Cloning entity ' + self.entity)
         d = dict(self.__dict__)
         # get old data before deleting it
-        d.pop("id")  # get rid of id
+        # d.pop("id")  # get rid of id
+        d['id'] = None
         d.pop("_sa_instance_state")  # get rid of SQLAlchemy special attr
 
         if new_golive is None:
             d['entity'] = d['entity'] + ' _COPY'    # add _COPY suffix to new name only when copying for the same go-live
         else:
             d['golive_id'] = new_golive     # override golive if new_golive is filled
+
         copy = self.__class__(**d)
 
         try:
             db.session.add(copy)
             db.session.commit()     # if you need the id immediately
-        except IntegrityError:
+        except IntegrityError as e:
             # rollback & try additional _COPY suffix
+            print(e)
             db.session.rollback()
             copy.entity = copy.entity + ' _COPY'
             db.session.add(copy)
@@ -188,13 +196,17 @@ class EntityField(db.Model):
                                foreign_keys='EntityField.golive_id')
 
     def clone(self, new_id, new_golive=None):
-        # print('Cloning field ' + self.field)
+        print('Cloning field ' + self.field)
         d = dict(self.__dict__)
-        d.pop("id")  # get rid of id
+        # d.pop("id")  # get rid of id
         d.pop("_sa_instance_state")  # get rid of SQLAlchemy special attr
+
+        d['id'] = None
         d['entity_id'] = new_id
+
         if new_golive is not None:
             d['golive_id'] = new_golive  # to get the correct golive id
+
         copy = self.__class__(**d)
         db.session.add(copy)
         db.session.commit()  # if you need the id immediately
