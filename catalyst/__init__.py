@@ -71,7 +71,10 @@ def process_task(task):
 def process_all_tasks():
     tasks = Task.query.filter_by(status='pending')
     num = tasks.count()
-    print('Processing ' + str(num) + ' tasks')
+    if num == 0:
+        print('Task processor: no tasks found')
+    else:
+        print('Task processor: processing ' + str(num) + ' tasks')
 
     for task in tasks:
         process_task(task)
