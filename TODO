@@ -1,4 +1,6 @@
 - front end copy entity &copy go-live
+- export loadfiles
+- microsoft login
 - add pytest module
 - pandas lambda function for transformation rules
 - add possibility to run pandas query data validations next to cerberus
