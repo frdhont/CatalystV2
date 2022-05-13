@@ -11,7 +11,8 @@ sched.add_job(process_all_tasks, 'interval'
 
 # Starts the Scheduled jobs
 sched.start()
-atexit.register(lambda: sched.shutdown(wait=False))  # stop job if app is not running
+print('Scheduler started')
+atexit.register(lambda: sched.shutdown(wait=True))  # stop job when app stops, but wait untill all jobs are finished
 
 # start web app
 if __name__ == "__main__":

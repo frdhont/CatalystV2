@@ -2,6 +2,8 @@ import pandas as pd
 import config
 from catalyst.models import CleansingRule, Entity, EntityField, Customer, GoLive
 from catalyst.loadfiles import get_loadfile
+from sqlalchemy.exc import ProgrammingError
+from sqlalchemy import and_
 from app import db
 import json
 from cerberus import Validator
@@ -14,8 +16,12 @@ def generate_data_issues(golive_id):
     conn = config.sql_connect(golive.customer.database_name)
     conn = conn.connect()
 
-    with conn:
-        conn.execute('delete from reporting.' + golive_id + '_DataIssues')
+    try:
+        with conn:
+            conn.execute('delete from reporting.data_issues where golive = \'' + golive_id + '\'')
+    except ProgrammingError as e:
+        print('Table reporting.data_issues doesn\'t exist yet')
+        # print(e)
 
     # fetch applicable rules for golive
     rules = CleansingRule.query.filter_by(golive_id=golive.id)
@@ -33,7 +39,7 @@ def generate_data_issues(golive_id):
 
 def create_cerberus_validation_dict(entity_id):
     # fetch all the rules
-    rules = CleansingRule.query.filter_by(entity_id=entity_id)
+    rules = CleansingRule.query.filter(and_(entity_id=entity_id, type='cerberus', active='True'))
     rules_df = pd.read_sql(rules.statement, rules.session.bind)
 
     # fetch number fields
@@ -53,6 +59,7 @@ def create_cerberus_validation_dict(entity_id):
 
         for i, r in field_rules.iterrows():
             rule = r['rule']
+            print(rule)
             criteria = r['criteria']
 
             # convert text values to int if possible
@@ -112,13 +119,13 @@ def generate_cerberus_data_issues(entity_id):
             field = error_df['index'][0]
             issue_desc = error_df[0][0]
 
-            issue = pd.DataFrame({'code': item[entity.code_column],
-                                  'rule_id': None,
-                                  'golive': entity.golive_id,
-                                  'entity': entity.entity,
-                                  'field': field,
-                                  'issue': issue_desc,
-                                  'value': item[field]
+            issue = pd.DataFrame({'golive': entity.golive_id,
+                                    'code': item[entity.code_column],
+                                    'rule_id': None,
+                                    'entity': entity.entity,
+                                    'field': field,
+                                    'issue': issue_desc,
+                                    'value': item[field]
                                   }, index=[0])
             issues = pd.concat([issues, issue])
 
@@ -126,7 +133,7 @@ def generate_cerberus_data_issues(entity_id):
     conn = conn.connect()
 
     with conn:
-        issues.to_sql(entity.golive_id + '_DataIssues', conn, schema='reporting', if_exists='append', index=False)
+        issues.to_sql('reporting.data_issues', conn, schema='reporting', if_exists='append', index=False)
 
 
 def generate_pandas_data_issues(rules):

@@ -240,6 +240,7 @@ class CleansingRule(db.Model):
     rule = db.Column(db.String)
     criteria = db.Column(db.String)
     active = db.Column(db.Boolean())
+    type = db.Column(db.String(20), nullable=False)
 
     # entity_id = db.Column(db.Integer, nullable=False)
     entity_field = db.relationship("EntityField", backref=backref("entity_fields", lazy="dynamic"),
