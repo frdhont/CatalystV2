@@ -31,6 +31,16 @@
         <div class="page-body">
           <div class="container-fluid">
             <div class="row row-deck row-cards">
+			
+			{% if form.errors %}
+			<div class="col-12">
+				<div class="alert alert-danger" role="alert">
+					<h4 class="alert-title">Error!</h4>
+					<div class="text-muted">{{ form.errors }}</div>
+				</div>
+			</div>
+			{% endif %}
+			
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
@@ -51,6 +61,7 @@
 						  <th>Parameter</th>
 						  <th>Source field</th>
 						  <th>Translation key</th>
+						  <th>Number Sequence</th>
 						  <th>Regex validation</th>
 						  <th></th>
                         </tr>
@@ -67,6 +78,7 @@
 						  <td>{{ f.parameter if f.parameter }}</td>
 						  <td>{{ f.source_field if f.source_field }}</td>
 						  <td>{{ f.translation_key if f.translation_key }}</td>
+						  <td>{{ f.number_sequence.name if f.number_sequence }}</td>
 						  <td>{{ f.regex_validation if f.regex_validation }}</td>
                           <td class="text-end">
 							<a href="#" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
@@ -164,6 +176,16 @@
 					  {{ form.translation_key(class_="form-select") }}
 					</div>
 				</div>
+				<div class="col-lg-6">
+					<div class="mb-3">
+					  <label class="form-label">{{ form.number_sequence.label }}</label>
+					  {{ form.number_sequence(class_="form-select") }}
+					</div>
+				</div>
+			</div>
+		</div>
+			<div class="modal-body">
+				<div class="row">
 				<div class="col-lg-12">
 					<div class="mb-3">
 					  <label class="form-label">{{ form.regex_validation.label }}</label>

@@ -6,7 +6,8 @@ import pandas as pd
 from cerberus import Validator
 import json
 from catalyst.loadfiles import get_loadfile
-from catalyst.models import Entity, ParameterQuery, GoLive
+from catalyst.models import Entity, ParameterQuery, GoLive, NumberSequence, EntityField
+from catalyst.loadfiles import create
 from app import db
 import pytest
 import numpy as np
@@ -15,13 +16,30 @@ from catalyst import create_task, process_all_tasks
 from catalyst.loadfiles import mapping
 from datetime import datetime
 from msal import PublicClientApplication
-prefix = 'C'
-start = 11000000
-num = 100
-s = pd.Series(np.arange(start=start, stop=start+num))
-s = prefix + s
-print(s)
+create('BC01')
+# ent = Entity.query.get(48)
+# df = get_source_data(ent)
+# mapping.map_entity(ent)
+source_field = 'country'
+# print(df)
+# df = s.to_frame()
+"""
+prefix = 'lambda x:'
+lam = '\'Belgium\' if x is None else x'
+lam = prefix + lam
+try:
+    print(eval(lam))
+    df['TEST'] = df[source_field].apply(eval(lam))
+    # print(s)
+except SyntaxError as e:
+    print('invalid lambda syntax')
+    pass
 
+
+
+
+# print(df)
+"""
 """
 # x =
 data = df.apply(lambda id: id + '0')

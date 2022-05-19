@@ -2,7 +2,7 @@ from catalyst.models import EntityField, Translation, ParameterQuery
 import pandas as pd
 from catalyst.loadfiles.source_data import get_source_data
 from collections import defaultdict
-
+import numpy as np
 
 def map_entity(entity):
     print('### Mapping ' + entity.entity + ' for golive ' + entity.golive_id)
@@ -70,7 +70,34 @@ def map_entity(entity):
                         # translate values for which there is a translation
                         df[field_name] = source_data[source_field].map(dic)
 
-        # map default fields last
+            if field.mapping_type == 'transformation_rule':
+                lam = 'lambda x:' + field.transformation_rule
+                try:
+                    print(field_name)
+                    print(source_field)
+                    df[field_name] = source_data[source_field].apply(eval(lam))
+                    # print(s)
+                except SyntaxError as e:
+                    df[field_name] = '## Invalid syntax ##'
+                    print('Invalid lambda syntax')
+                    pass
+
+            if field.mapping_type == 'number_sequence':
+                start = field.number_sequence.start
+                stop = start + len(source_data)
+                length = field.number_sequence.length
+                prefix = field.number_sequence.prefix
+                print(
+                    '## Generating number sequence for field ' + field_name +
+                    '. Format: ' + prefix + str(start).zfill(length))
+                seq = pd.Series(np.arange(start=start, stop=stop))  # create series
+                seq = seq.apply(lambda x: prefix + (str(x).zfill(length)))  # apply leading zeros + prefix
+                df[field_name] = seq
+
+            # remove fields that have already been processed
+            # fields.pop(field)
+
+        # map default & parameter fields last
         for field in fields:
             field_name = field.field
 
@@ -89,7 +116,7 @@ def map_entity(entity):
         # add code field
         df['code'] = source_data[entity.code_column]
         df.insert(0, 'code', df.pop('code'))
-        # print(df)
+        print(df)
 
         return df
 

@@ -189,11 +189,20 @@ class EntityField(db.Model):
     source_field = db.Column(db.String)
     translation_key = db.Column(db.String(255))
     regex_validation = db.Column(db.String)
+    number_sequence_id = db.Column(db.String(20), db.ForeignKey('number_sequences.id'), nullable=False)
+    transformation_rule = db.Column(db.String)
 
     # entity = db.relationship("Entity", backref=backref("entities", lazy="dynamic"))
     entity = db.relationship("Entity", back_populates="entity_fields")
     golive = db.relationship('GoLive', backref=backref("golives", lazy="dynamic"),
                                foreign_keys='EntityField.golive_id')
+    number_sequence = db.relationship("NumberSequence", back_populates="entity_fields")
+
+    # combination of entity id & field name must be unique
+    __table_args__ = (
+        # combination of golive, translation_key & from_value must be unique
+        db.UniqueConstraint('entity_id', 'field'),
+    )
 
     def clone(self, new_id, new_golive=None):
         print('Cloning field ' + self.field)
@@ -264,6 +273,7 @@ class Task(db.Model):
 
 class Parameter(db.Model):
     __tablename__ = 'parameters'
+
     id = db.Column(db.Integer, primary_key=True)
     parameter = db.Column(db.String(255), nullable=False)
     value = db.Column(db.String, nullable=False)
@@ -296,3 +306,16 @@ class ParameterQuery(object):
             param = Parameter.query.filter(and_(Parameter.parameter == parameter, Parameter.customer_id
                                                 == customer_id, Parameter.golive_id == None)).first()
             return param.value if param else None
+
+
+class NumberSequence(db.Model):
+    __tablename__ = 'number_sequences'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    prefix = db.Column(db.String(255), nullable=False)
+    start = db.Column(db.Integer)
+    length = db.Column(db.Integer)
+    golive_id = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=True)  # golive can be empty
+
+    entity_fields = db.relationship("EntityField", back_populates="number_sequence")

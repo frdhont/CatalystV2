@@ -6,7 +6,6 @@ from catalyst.models import GoLive, Entity
 import pandas as pd
 
 
-
 def create(gl):
     golive = GoLive.query.get(gl)
 
