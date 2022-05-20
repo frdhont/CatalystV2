@@ -20,9 +20,10 @@ create('BC01')
 # ent = Entity.query.get(48)
 # df = get_source_data(ent)
 # mapping.map_entity(ent)
-source_field = 'country'
+# source_field = 'country'
 # print(df)
 # df = s.to_frame()
+# NumberSequence.__table__.create(db.session.bind)
 """
 prefix = 'lambda x:'
 lam = '\'Belgium\' if x is None else x'
@@ -35,7 +36,7 @@ except SyntaxError as e:
     print('invalid lambda syntax')
     pass
 
-
+x if x in ['EUR', 'USD'] else 'EUR'
 
 
 # print(df)

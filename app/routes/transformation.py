@@ -1,14 +1,15 @@
 from flask import render_template, request
 from app import app, db
-from app.forms import EntityForm, GoLiveForm, TranslationForm, EntityFieldForm
+from app.forms import EntityForm, GoLiveForm, EntityFieldForm
 from catalyst import create_task
 from catalyst.models import Entity, GoLive, Translation, EntityField, NumberSequence
 from catalyst.loadfiles.validate import create_validation_dict
 from flask_login import current_user, login_required
 import sqlalchemy.exc
-from sqlalchemy.exc import IntegrityError, ProgrammingError
+from sqlalchemy.exc import ProgrammingError, IntegrityError
 import config
 import pandas as pd
+
 
 @app.route('/transformation/entities', methods=['GET', 'POST'])
 @login_required
@@ -35,7 +36,7 @@ def entities():
             db.session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             db.session.rollback()
-            entity_already_exists = 1
+            error_message = 'Entity \'' + entity.entity + '\' already exists for go-live ' + entity.golive_id
 
     entities = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).all()
 
@@ -114,8 +115,16 @@ def entities_fields(entity_id):
                                     number_sequence_id=form.number_sequence.data,
                                     source_field=form.source_field.data, translation_key=form.translation_key.data,
                                     regex_validation=form.regex_validation.data, type=form.type.data, golive_id=entity.golive_id)
-                db.session.add(field)
-                db.session.commit()
+
+
+                try:
+                    db.session.add(field)
+                    db.session.commit()
+                except IntegrityError as e:
+                    db.session.rollback()
+                    error_message = 'Field ' + field.field + ' already exists for entity ' + entity.entity
+                    return render_template('transformation/entity_fields.html', nbar='configuration', **locals())
+
             else:
                 print(form.errors)
 
@@ -169,30 +178,3 @@ def golives():
 
     return render_template('transformation/golives.html', nbar='transformation', **locals())
 
-
-@app.route('/transformation/translations', methods=['GET', 'POST'])
-@login_required
-def translations():
-    # fetch allowed golives for user
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
-    allowed_golives = [gl.id for gl in golives]
-    golive_choices = [(gl.id, gl.id) for gl in golives]
-
-    # init form + set go live choices to allowed values
-    form = TranslationForm()
-    form.golive.choices = golive_choices
-
-    if form.validate_on_submit():
-        translation = Translation(golive=form.golive.data, translation_key=form.translation_key.data,
-                                  from_value=form.from_value.data, to_value=form.to_value.data)
-        db.session.add(translation)
-
-        try:
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            already_exists = True
-
-    translations = Translation.query.all()
-
-    return render_template('transformation/translations.html', nbar='transformation', **locals())

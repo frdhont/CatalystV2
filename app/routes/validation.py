@@ -15,9 +15,6 @@ def cleansing_rules():
 
     cleansing_rules = CleansingRule.query.all()
 
-    for c in cleansing_rules:
-        print(c.entity_field)
-
     form = CleansingForm
 
     return render_template('validation/cleansing_rules.html', nbar='validation', **locals())

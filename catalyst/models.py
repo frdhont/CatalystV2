@@ -67,7 +67,9 @@ class Customer(db.Model):
     id = db.Column(db.String(20), primary_key=True)
     name = db.Column(db.String(64))
     database_name = db.Column(db.String, nullable=False)
+
     parameters = db.relationship("Parameter", back_populates="customer")
+    number_sequences = db.relationship("NumberSequence", back_populates="customer")
 
 
 class GoLive(db.Model):
@@ -283,6 +285,10 @@ class Parameter(db.Model):
     customer = db.relationship("Customer", back_populates="parameters")
     golive = db.relationship("GoLive", back_populates="parameters")
 
+    __table_args__ = (
+        # combination of parameter, golive & customer must be unique
+        db.UniqueConstraint('parameter', 'golive_id', 'customer_id'),
+    )
 
 class ParameterQuery(object):
     @staticmethod
@@ -316,6 +322,8 @@ class NumberSequence(db.Model):
     prefix = db.Column(db.String(255), nullable=False)
     start = db.Column(db.Integer)
     length = db.Column(db.Integer)
-    golive_id = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=True)  # golive can be empty
+    customer_id = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)  # golive can be empty
 
     entity_fields = db.relationship("EntityField", back_populates="number_sequence")
+    customer = db.relationship("Customer", back_populates="number_sequences")
+

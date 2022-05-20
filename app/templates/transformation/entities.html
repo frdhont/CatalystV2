@@ -32,11 +32,11 @@
           <div class="container-fluid">
             <div class="row row-deck row-cards">
 			
-			 {% if entity_already_exists %}
+			{% if error_message %}
 			<div class="col-12">
 				<div class="alert alert-danger" role="alert">
-					<h4 class="alert-title">Error</h4>
-					<div class="text-muted">Entity already exists</div>
+					<h4 class="alert-title">Error!</h4>
+					<div class="text-muted">{{ error_message }}</div>
 				</div>
 			</div>
 			{% endif %}

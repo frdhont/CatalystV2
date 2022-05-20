@@ -70,11 +70,10 @@ def map_entity(entity):
                         # translate values for which there is a translation
                         df[field_name] = source_data[source_field].map(dic)
 
-            if field.mapping_type == 'transformation_rule':
+            if field.mapping_type == 'transformation':
                 lam = 'lambda x:' + field.transformation_rule
+                print('## Setting field ' + field_name + ' as calculation from transformation rule: \'' + lam + '\'')
                 try:
-                    print(field_name)
-                    print(source_field)
                     df[field_name] = source_data[source_field].apply(eval(lam))
                     # print(s)
                 except SyntaxError as e:
@@ -105,18 +104,18 @@ def map_entity(entity):
                 # fetch parameter value
                 param = ParameterQuery.get_parameter(parameter=field.parameter, golive_id=field.golive_id
                                                      , customer_id=entity.golive.customer_id)
-                print('## Setting field ' + field_name + ' to value of parameter \'' + field.parameter + '\': \'' + str(param) + '\'')
+                print('## Setting field ' + field_name + ' to value of parameter \'' + str(field.parameter) + '\': \'' + str(param) + '\'')
                 df[field_name] = param
 
             if field.mapping_type == 'default':
-                print('## Setting field ' + field_name + ' to default \'' + field.default_value + '\'')
+                print('## Setting field ' + field_name + ' to default \'' + str(field.default_value) + '\'')
                 df[field_name] = field.default_value
 
 
         # add code field
         df['code'] = source_data[entity.code_column]
         df.insert(0, 'code', df.pop('code'))
-        print(df)
+        # print(df)
 
         return df
 

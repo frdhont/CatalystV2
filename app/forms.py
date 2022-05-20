@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, validators, SelectField, TextAreaField, BooleanField
+from wtforms import StringField, PasswordField, validators, SelectField, TextAreaField, BooleanField, IntegerField
 from wtforms.fields import EmailField, DateField
 from wtforms.widgets import TextArea
 from wtforms.validators import InputRequired, Optional
@@ -65,13 +65,14 @@ class EntityFieldForm(FlaskForm):
     description = StringField('Description', filters=[lambda x: x or None])
     allow_null = BooleanField('Allow empty')
     mapping_type = SelectField('Mapping type', validators=[validators.DataRequired()], choices=[('default', 'Default')
-        , ('one_to_one', 'One to one'), ('translation', 'Translation'), ('parameter', 'Parameter'), ('number_sequence',
-                                                                                                     'Number sequence')])
+        , ('one_to_one', 'One to one'), ('translation', 'Translation'), ('parameter', 'Parameter')
+        , ('number_sequence', 'Number sequence'), ('transformation', 'Transformation')])
     default = StringField('Default value', filters=[lambda x: x or None])  # lambda to insert NULL instead of "" to sql
     parameter = StringField('Parameter', filters=[lambda x: x or None])
     source_field = StringField('Source field', filters=[lambda x: x or None])
     translation_key = SelectField('Translation key', validators=[validators.Optional()], filters=[lambda x: x or None])
     regex_validation = StringField('Regex validation', filters=[lambda x: x or None])
+    transformation = StringField('Transformation rule', filters=[lambda x: x or None])
     number_sequence = SelectField('Number sequence', validators=[validators.Optional()], filters=[lambda x: x or None])
 
 
@@ -118,3 +119,14 @@ class CleansingForm(FlaskForm):
     active = BooleanField('Active')
 
 
+class NumberSequenceForm(FlaskForm):
+    name = StringField('Name', validators=[validators.DataRequired()])
+    prefix = StringField('Prefix', validators=[validators.DataRequired()])
+    start = IntegerField('Start', validators=[validators.DataRequired()])
+    length = IntegerField('Length', validators=[validators.DataRequired()])
+
+
+class ParameterForm(FlaskForm):
+    parameter = StringField('Parameter', validators=[validators.DataRequired()])
+    golive = SelectField('Go-live', validators=[validators.DataRequired()], filters=[lambda x: x or None])
+    value = StringField('Value', validators=[validators.DataRequired()])

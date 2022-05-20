@@ -58,7 +58,7 @@ db = SQLAlchemy(app)
 #user_manager.login_manager = login
 
 from app.routes import index, auth, admin, tasks
-from app.routes import transformation, validation
+from app.routes import transformation, validation, configuration
 
 
 

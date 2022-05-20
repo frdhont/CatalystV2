@@ -32,6 +32,15 @@
           <div class="container-fluid">
             <div class="row row-deck row-cards">
 			
+			{% if error_message %}
+			<div class="col-12">
+				<div class="alert alert-danger" role="alert">
+					<h4 class="alert-title">Error!</h4>
+					<div class="text-muted">{{ error_message }}</div>
+				</div>
+			</div>
+			{% endif %}
+			
 			{% if form.errors %}
 			<div class="col-12">
 				<div class="alert alert-danger" role="alert">
@@ -57,11 +66,15 @@
                           <th>Precision</th>
 						  <th>Allow empty</th>
 						  <th>Mapping type</th>
+						  <th>Source field</th>
+						  <th>Value</th>
+						  <!-- 
 						  <th>Default value</th>
 						  <th>Parameter</th>
-						  <th>Source field</th>
 						  <th>Translation key</th>
-						  <th>Number Sequence</th>
+						  <th>Number sequence</th>
+						  <th>Transformation rule</th>
+						  -->
 						  <th>Regex validation</th>
 						  <th></th>
                         </tr>
@@ -74,11 +87,22 @@
 						  <td>{{ f.precision if f.precision }}</td>
 						  <td>{{ f.allow_null }}</td>
 						  <td>{{ f.mapping_type }}</td>
-						  <td>{{ f.default_value if f.default_value }}</td>
-						  <td>{{ f.parameter if f.parameter }}</td>
 						  <td>{{ f.source_field if f.source_field }}</td>
+						  
+						  <td>
+						  {% if f.mapping_type == "default" %} {{ f.default_value if f.default_value }} {% endif %}
+						  {% if f.mapping_type == "parameter" %} {{ f.parameter if f.parameter }} {% endif %}
+						  {% if f.mapping_type == "translation" %} {{ f.translation_key if f.translation_key }} {% endif %}
+						  {% if f.mapping_type == "number_sequence" %} {{ f.number_sequence.name if f.number_sequence  }} {% endif %}
+						  {% if f.mapping_type == "transformation" %} {{ f.transformation_rule if f.transformation_rule  }} {% endif %}
+						  </td>
+						  <!--
+						  <td>{{ f.parameter if f.parameter }}</td>
 						  <td>{{ f.translation_key if f.translation_key }}</td>
 						  <td>{{ f.number_sequence.name if f.number_sequence }}</td>
+						  <td>{{ f.transformation_rule if f.transformation_rule }}</td>
+						  
+						  -->
 						  <td>{{ f.regex_validation if f.regex_validation }}</td>
                           <td class="text-end">
 							<a href="#" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
@@ -180,6 +204,12 @@
 					<div class="mb-3">
 					  <label class="form-label">{{ form.number_sequence.label }}</label>
 					  {{ form.number_sequence(class_="form-select") }}
+					</div>
+				</div>
+				<div class="col-lg-12">
+					<div class="mb-3">
+					  <label class="form-label">{{ form.transformation.label }}</label>
+					  {{ form.transformation(class_="form-control") }}
 					</div>
 				</div>
 			</div>
