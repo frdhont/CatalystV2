@@ -5,8 +5,8 @@ import config
 import pandas as pd
 from cerberus import Validator
 import json
-from catalyst.loadfiles import get_loadfile
-from catalyst.models import Entity, ParameterQuery, GoLive, NumberSequence, EntityField
+from catalyst.loadfiles import get_loadfile, export_loadfile
+from catalyst.models import Entity, ParameterQuery, GoLive, NumberSequence, EntityField, ExportDetail
 from catalyst.loadfiles import create
 from app import db
 import pytest
@@ -16,14 +16,15 @@ from catalyst import create_task, process_all_tasks
 from catalyst.loadfiles import mapping
 from datetime import datetime
 from msal import PublicClientApplication
-create('BC01')
-# ent = Entity.query.get(48)
+loadfile = get_loadfile(2)
+ent = Entity.query.get(2)
+export_loadfile(ent, loadfile)
 # df = get_source_data(ent)
 # mapping.map_entity(ent)
 # source_field = 'country'
 # print(df)
 # df = s.to_frame()
-# NumberSequence.__table__.create(db.session.bind)
+# ExportDetail.__table__.create(db.session.bind)
 """
 prefix = 'lambda x:'
 lam = '\'Belgium\' if x is None else x'

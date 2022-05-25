@@ -130,8 +130,10 @@ class Entity(db.Model):
     allow_unknown = db.Column(db.Boolean, default=True)
     code_column = db.Column(db.String(255), nullable=False, default='code')
     data_cleansing_json = db.Column(db.String)
+
     entity_fields = relationship("EntityField", back_populates="entity", cascade="all,delete")
     cleansing_rules = relationship("CleansingRule", back_populates="entity")
+    export_details = relationship("ExportDetail", back_populates="entity")
 
     __table_args__ = (
         # combination of entity & golive must be unique
@@ -290,6 +292,7 @@ class Parameter(db.Model):
         db.UniqueConstraint('parameter', 'golive_id', 'customer_id'),
     )
 
+
 class ParameterQuery(object):
     @staticmethod
     def get_parameter(parameter, golive_id, customer_id=None):
@@ -327,3 +330,13 @@ class NumberSequence(db.Model):
     entity_fields = db.relationship("EntityField", back_populates="number_sequence")
     customer = db.relationship("Customer", back_populates="number_sequences")
 
+
+class ExportDetail(db.Model):
+    __tablename__ = 'export_details'
+
+    id = db.Column(db.Integer, primary_key=True)
+    target = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(255))
+    entity_id = db.Column(db.Integer, db.ForeignKey('entities.id'), nullable=False)
+
+    entity = db.relationship('Entity', back_populates="export_details")
