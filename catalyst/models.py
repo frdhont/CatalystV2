@@ -7,9 +7,10 @@ from sqlalchemy.orm.session import make_transient
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 # from datetime import datetime
+from sqlalchemy_serializer import SerializerMixin
 
 
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin, SerializerMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -61,7 +62,7 @@ class UserRoles(db.Model):
 """
 
 
-class Customer(db.Model):
+class Customer(db.Model, SerializerMixin):
     __tablename__ = 'customers'
 
     id = db.Column(db.String(20), primary_key=True)
@@ -86,6 +87,7 @@ class GoLive(db.Model):
 
     customer = db.relationship('Customer', backref=backref("customers", lazy="dynamic"), foreign_keys='GoLive.customer_id')
     entities = relationship("Entity", back_populates="golive", cascade="all,delete")
+    translations = relationship("Translation", back_populates="golive")
 
     def clone(self, new_golive):
         if GoLive.query.get(new_golive) is not None:
@@ -229,14 +231,16 @@ class Translation(db.Model):
     __tablename__ = 'translation_table'
 
     id = db.Column(db.Integer, primary_key=True)
-    golive = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=False)
+    golive_id = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=False)
     translation_key = db.Column(db.String(255), nullable=False)
     from_value = db.Column(db.String(500))
     to_value = db.Column(db.String)
 
+    golive = db.relationship('GoLive', back_populates="translations")
+
     __table_args__ = (
         # combination of golive, translation_key & from_value must be unique
-        db.UniqueConstraint('golive', 'translation_key', 'from_value'),
+        db.UniqueConstraint('golive_id', 'translation_key', 'from_value'),
     )
 
 

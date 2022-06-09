@@ -6,7 +6,7 @@ import pandas as pd
 from cerberus import Validator
 import json
 from catalyst.loadfiles import get_loadfile, export_loadfile
-from catalyst.models import Entity, ParameterQuery, GoLive, NumberSequence, EntityField, ExportDetail
+from catalyst.models import Entity, ParameterQuery, GoLive, NumberSequence, EntityField, ExportDetail, Translation
 from catalyst.loadfiles import create
 from app import db
 import pytest
@@ -16,9 +16,10 @@ from catalyst import create_task, process_all_tasks
 from catalyst.loadfiles import mapping
 from datetime import datetime
 from msal import PublicClientApplication
-loadfile = get_loadfile(2)
-ent = Entity.query.get(2)
-export_loadfile(ent, loadfile)
+# tr = Translation.query.filter(Translation.golive.customer_id == 'M2')
+tr = db.session.query(Translation).join(GoLive).filter(GoLive.customer_id == 'MOCK')
+for t in tr:
+    print(t.id)
 # df = get_source_data(ent)
 # mapping.map_entity(ent)
 # source_field = 'country'

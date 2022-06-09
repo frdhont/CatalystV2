@@ -31,6 +31,29 @@
         <div class="page-body">
           <div class="container-fluid">
             <div class="row row-deck row-cards">
+			
+			{% if error_message %}
+			<div class="col-12">
+				<div class="alert alert-danger" role="alert">
+					<h4 class="alert-title">Error!</h4>
+					<div class="text-muted">{{ error_message }}</div>
+				</div>
+			</div>
+			{% endif %}
+			
+			{% if delete and not error_message %}
+			<div class="col-12">
+			<div class="alert alert-success" role="alert">
+			  <div class="d-flex">
+				<div>
+				  <h4 class="alert-title">Success!</h4>
+				  <div class="text-muted">Cleansing rule deleted</div>
+				</div>
+			  </div>
+			</div>
+			</div>
+			{% endif %}
+			
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
@@ -40,10 +63,12 @@
                     <table class="table card-table table-vcenter text-nowrap datatable">
                       <thead>
                         <tr>
-                          <th>Go live</th>
+                          <th></th>
+						  <th>Go live</th>
                           <th>Entity</th>
                           <th>Field</th>
-                          <th>Description</th>
+                          <th>Type</th>
+						  <th>Description</th>
                           <th>Rule</th>
 						  <th>Criterium</th>
 						  <th>Active</th>
@@ -53,9 +78,22 @@
                       <tbody>
 					  {% for c in cleansing_rules %}
                         <tr>
+						<td width="5%">
+							<a href="{{ url_for('cleansing_rules', delete=c.id) }}" class="btn d-none d-sm-inline-block">
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								   <desc>Download more icon variants from https://tabler-icons.io/i/trash</desc>
+								   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								   <line x1="4" y1="7" x2="20" y2="7"></line>
+								   <line x1="10" y1="11" x2="10" y2="17"></line>
+								   <line x1="14" y1="11" x2="14" y2="17"></line>
+								   <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+								   <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+								</svg></a>
+                          </td>
                           <td>{{ c.entity_field.entity.golive_id }}</td>
                           <td>{{ c.entity_field.entity.entity }}</td>
 						  <td>{{ c.entity_field.field }}</td>
+						  <td>{{ c.type }}</td>
 						  <td>{{ c.description if c.description}}</td>
 						  <td>{{ c.rule }}</td>
 						  <td>{{ c.criteria }}</td>

@@ -1,14 +1,24 @@
 from flask import render_template, request
 from app import app, db
 from app.forms import TranslationForm, NumberSequenceForm, ParameterForm
-from catalyst.models import Entity, GoLive, Translation,  NumberSequence, Parameter
+from catalyst.models import Entity, GoLive, Translation,  NumberSequence, Parameter, EntityField
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_
 
 
 @app.route('/configuration/translations', methods=['GET', 'POST'])
 @login_required
 def configuration_translations():
+    if request.args.get('delete'):
+        delete = request.args.get('delete')
+        tl = Translation.query.get(delete)
+        if tl.golive.customer_id == current_user.customer:
+            Translation.query.filter_(Translation.id == delete).delete()
+            db.session.commit()
+        else:
+            error_message = 'Translation not found'
+
     # fetch allowed golives for user
     golives = GoLive.query.filter_by(customer_id=current_user.customer)
     allowed_golives = [gl.id for gl in golives]
@@ -27,9 +37,10 @@ def configuration_translations():
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            already_exists = True
+            error_message = 'A translation with following properties already exists: ' + form.golive.data + \
+                            ', ' + form.translation_key.data + ', ' + form.from_value.data
 
-    translations = Translation.query.all()
+    translations = db.session.query(Translation).join(GoLive).filter(GoLive.customer_id == current_user.customer)
 
     return render_template('configuration/translations.html', nbar='configuration', **locals())
 
@@ -37,6 +48,13 @@ def configuration_translations():
 @app.route('/configuration/parameters', methods=['GET', 'POST'])
 @login_required
 def configuration_parameters():
+    # delete if requested
+    if request.args.get('delete'):
+        delete = request.args.get('delete')
+        Parameter.query.filter(and_(Parameter.id == delete,
+                                    Parameter.customer_id == current_user.customer)).delete(synchronize_session='fetch')
+        db.session.commit()
+
     parameters = Parameter.query.all()
 
     # fetch golives
@@ -48,6 +66,7 @@ def configuration_parameters():
     form.golive.choices = golive_choices
 
     if request.method == 'POST':
+        print(form.golive.data)
         if form.validate_on_submit():
 
             parameter = Parameter(parameter=form.parameter.data, value=form.value.data,
@@ -63,7 +82,7 @@ def configuration_parameters():
 
             parameters = Parameter.query.all()
         else:
-            print(form.errors)
+            error_message = form.errors
 
     return render_template('configuration/parameters.html', nbar='configuration', **locals())
 
@@ -71,14 +90,24 @@ def configuration_parameters():
 @app.route('/configuration/number_sequences', methods=['GET', 'POST'])
 @login_required
 def configuration_sequences():
-    # sequences = NumberSequence.query.filter_by(customer_id=current_user.customer)
-    sequences = NumberSequence.query.all()
+    if request.args.get('delete'):
+        delete = request.args.get('delete')
+        ent = EntityField.query.filter_by(number_sequence_id=delete).first()
+        if ent:
+            error_message = 'Number sequence in use, can\'t be deleted'
+        else:
+            NumberSequence.query.filter(and_(NumberSequence.id == delete,
+                                                NumberSequence.customer_id == current_user.customer))\
+                .delete(synchronize_session='fetch')
+            db.session.commit()
+
+    sequences = NumberSequence.query.filter_by(customer_id=current_user.customer)
+    # sequences = NumberSequence.query.all()
 
     # generate example number
     for s in sequences:
         s.example = s.prefix + str(s.start).zfill(s.length)
 
-    print(sequences)
     # init form
     form = NumberSequenceForm()
 

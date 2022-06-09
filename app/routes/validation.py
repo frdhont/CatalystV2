@@ -12,8 +12,14 @@ import pandas as pd
 @app.route('/validation/cleansing_rules', methods=['GET', 'POST'])
 @login_required
 def cleansing_rules():
+    # delete if requested
+    if request.args.get('delete'):
+        delete = request.args.get('delete')
+        CleansingRule.query.filter_by(id=delete).delete(synchronize_session='fetch')
+        db.session.commit()
 
     cleansing_rules = CleansingRule.query.all()
+    cleansing_rules = db.session.query(CleansingRule).join(GoLive).filter(GoLive.customer_id == current_user.customer)
 
     form = CleansingForm
 

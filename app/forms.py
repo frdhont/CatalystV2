@@ -128,5 +128,5 @@ class NumberSequenceForm(FlaskForm):
 
 class ParameterForm(FlaskForm):
     parameter = StringField('Parameter', validators=[validators.DataRequired()])
-    golive = SelectField('Go-live', validators=[validators.DataRequired()], filters=[lambda x: x or None])
+    golive = SelectField('Go-live', validators=[validators.Optional()], filters=[lambda x: x or None])
     value = StringField('Value', validators=[validators.DataRequired()])

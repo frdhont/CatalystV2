@@ -9,6 +9,7 @@ import sqlalchemy.exc
 from sqlalchemy.exc import ProgrammingError, IntegrityError
 import config
 import pandas as pd
+import json
 
 
 @app.route('/transformation/entities', methods=['GET', 'POST'])
