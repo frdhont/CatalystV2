@@ -7,10 +7,9 @@ from sqlalchemy.orm.session import make_transient
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 # from datetime import datetime
-from sqlalchemy_serializer import SerializerMixin
 
 
-class User(db.Model, UserMixin, SerializerMixin):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -62,7 +61,7 @@ class UserRoles(db.Model):
 """
 
 
-class Customer(db.Model, SerializerMixin):
+class Customer(db.Model):
     __tablename__ = 'customers'
 
     id = db.Column(db.String(20), primary_key=True)
