@@ -10,6 +10,7 @@ from flask_login import current_user, login_required
 @login_required
 def index():
 
+
     golives = GoLive.query.filter_by(customer_id=current_user.customer)
     golive_count = golives.count()
 
@@ -18,7 +19,6 @@ def index():
 
     try:
         dashboard, labels, legacy_values, scope_values, loadfile_values, issues_values = get_migration_dashboard(current_user.customer)
-        print(dashboard)
         if dashboard.empty:
             dashboard_available = False
     except TypeError as e:

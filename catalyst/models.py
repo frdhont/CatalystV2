@@ -3,16 +3,25 @@ from app import db, login
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.session import make_transient
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 # from datetime import datetime
+from dataclasses import dataclass, field
 
 
+@dataclass()
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
+    email: str
+    password: str
+    active: bool
+    first_name: str
+    last_name: str
+    customer: str
+    role: str
+
+    id: int = db.Column(db.Integer, primary_key=True)
 
     # User Authentication fields
     email = db.Column(db.String(255), nullable=False, unique=True)

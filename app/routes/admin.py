@@ -27,7 +27,6 @@ def admin_users():
     if request.method == 'POST' and form.validate():
 
         user = User.query.filter_by(email=form.email.data.lower()).first()
-        print(user)
 
         if user:
             user_exists = True
