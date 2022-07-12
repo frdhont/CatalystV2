@@ -17,7 +17,7 @@ import json
 def entities():
 
     # fetch allowed golives for user
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
+    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
     allowed_golives = [gl.id for gl in golives]
     golive_choices = [(gl.id, gl.id) for gl in golives]
 
@@ -171,11 +171,11 @@ def golives():
 
     if form.validate_on_submit():
         golive = GoLive(id=form.golive.data, name=form.name.data,
-                        customer_id=current_user.customer, go_live_date=form.go_live_date.data)
+                        customer_id=current_user.customer_id, go_live_date=form.go_live_date.data)
         db.session.add(golive)
         db.session.commit()
 
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
+    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
 
     return render_template('transformation/golives.html', nbar='transformation', **locals())
 

@@ -40,16 +40,16 @@
 				  
 					<div class="card-body">
                     No data issues generated yet.
-                  </div>
+                  
 				  {% else %}
 				  <div class="card-body">
-                  </div>
+
                   <div class="table-responsive">
                     <table class="table card-table table-vcenter text-nowrap datatable" id="table">
                       <thead>
                         <tr>
                            {% for col in column_names %}
-							<th>{{col}}</th>
+							<th><button class="table-sort" data-sort="sort-{{col}}">{{col}}</button></th>
 							{% endfor %}
                         </tr>
                       </thead>
@@ -71,6 +71,8 @@
                     </table>
                   </div>
 				  
+				  </div>
+				  
 				  {% endif %}
                 </div>
               </div>
@@ -81,7 +83,6 @@
 <script>
 $(document).ready( function () {
     $('#table').DataTable({
-		colReorder: true,
 		"scrollX": true
 	});
 } );

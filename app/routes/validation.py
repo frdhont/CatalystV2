@@ -19,7 +19,7 @@ def cleansing_rules():
         db.session.commit()
 
     cleansing_rules = CleansingRule.query.all()
-    cleansing_rules = db.session.query(CleansingRule).join(GoLive).filter(GoLive.customer_id == current_user.customer)
+    cleansing_rules = db.session.query(CleansingRule).join(GoLive).filter(GoLive.customer_id == current_user.customer_id)
 
     form = CleansingForm
 
@@ -35,8 +35,17 @@ def validation_data_issues():
     if generate_issues:
         create_task('generate_data_issues', generate_issues)
 
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
+    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
 
+
+    sql = 'select * from reporting.data_issues'
+    database = current_user.customer.database_name
+
+    conn = config.sql_connect(database)
+    with conn.connect():
+        df = pd.read_sql(sql, conn)
+
+    print(df)
     return render_template('validation/data_issues.html', nbar='validation', **locals())
 
 
@@ -55,7 +64,6 @@ def validation_data_issues_detail(golive):
         with conn:
             try:
                 data_issues = pd.read_sql(sql, conn)
-                print(data_issues)
                 column_names = data_issues.columns.values
                 row_data = list(data_issues.values.tolist())
             except ProgrammingError:

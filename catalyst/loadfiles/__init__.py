@@ -121,7 +121,7 @@ def export_loadfile(entity, loadfile=None):
                 blob_client = container_client.get_blob_client(azure_path)
 
                 with open(filepath, "rb") as source_file:
-                    blob_client.upload_blob(source_file)
+                    blob_client.upload_blob(source_file, overwrite=True)  # overwrite if file already exists
 
                 print('Entity ' + entity.entity + ' exported to ' + str(filepath))
         else:

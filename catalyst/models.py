@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     active: bool
     first_name: str
     last_name: str
-    customer: str
+    customer_id: str
     role: str
 
     id: int = db.Column(db.Integer, primary_key=True)
@@ -31,11 +31,12 @@ class User(db.Model, UserMixin):
     active = db.Column(db.Boolean(), default=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    customer = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=True)
+    customer_id = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=True)
     role = db.Column(db.String(20), nullable=True)
 
     # Relationships
     # roles = db.relationship('Role', secondary='user_roles')
+    customer = relationship("Customer", back_populates="users")
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -76,9 +77,16 @@ class Customer(db.Model):
     id = db.Column(db.String(20), primary_key=True)
     name = db.Column(db.String(64))
     database_name = db.Column(db.String, nullable=False)
+    # database_id = db.Column(db.Integer, db.ForeignKey('databases.id'), nullable=True)  # golive can be empty
 
     parameters = db.relationship("Parameter", back_populates="customer")
     number_sequences = db.relationship("NumberSequence", back_populates="customer")
+    databases = db.relationship("Database", back_populates="customer")
+    # primary_database = db.relationship("Database", back_populates="customer")
+
+    # relationships
+    users = relationship("User", back_populates="customer")
+
 
 
 class GoLive(db.Model):
@@ -316,7 +324,7 @@ class ParameterQuery(object):
         """
 
         if customer_id is None:
-            customer_id = current_user.customer
+            customer_id = current_user.customer_id
 
         param = Parameter.query.filter(and_(Parameter.parameter == parameter, Parameter.customer_id
                                             == customer_id, Parameter.golive_id == golive_id)).first()
@@ -335,12 +343,16 @@ class NumberSequence(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     prefix = db.Column(db.String(255), nullable=False)
-    start = db.Column(db.Integer)
+    start = db.Column(db.Integer, nullable=True)
     length = db.Column(db.Integer)
     customer_id = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)  # golive can be empty
+    example = db.Column(db.String(255))
 
     entity_fields = db.relationship("EntityField", back_populates="number_sequence")
     customer = db.relationship("Customer", back_populates="number_sequences")
+
+    def set_example(self):
+        self.example = self.prefix + str(self.start).zfill(self.length)
 
 
 class ExportDetail(db.Model):
@@ -352,3 +364,27 @@ class ExportDetail(db.Model):
     entity_id = db.Column(db.Integer, db.ForeignKey('entities.id'), nullable=False)
 
     entity = db.relationship('Entity', back_populates="export_details")
+
+
+class Database(db.Model):
+    __tablename__ = 'databases'
+
+    id = db.Column(db.Integer, primary_key=True)
+    server_name = db.Column(db.String(500), nullable=False)
+    type = db.Column(db.String(255))
+    user = db.Column(db.String(255))
+    password = db.Column(db.String)
+    customer_id = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)
+    usage = db.Column(db.String(255), default='primary')  # primary, legacy, loadfiles
+
+    customer = db.relationship("Customer", back_populates="databases")
+
+    __table_args__ = (
+        # combination of parameter, golive & customer must be unique
+        db.UniqueConstraint('customer_id', 'usage'),
+    )
+
+    """
+    TO DO: encrypt & decrypt password
+    https://www.geeksforgeeks.org/how-to-encrypt-and-decrypt-strings-in-python/
+    """

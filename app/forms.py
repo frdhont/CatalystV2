@@ -122,7 +122,7 @@ class CleansingForm(FlaskForm):
 class NumberSequenceForm(FlaskForm):
     name = StringField('Name', validators=[validators.DataRequired()])
     prefix = StringField('Prefix', validators=[validators.DataRequired()])
-    start = IntegerField('Start', validators=[validators.DataRequired()])
+    start = IntegerField('Start')
     length = IntegerField('Length', validators=[validators.DataRequired()])
 
 

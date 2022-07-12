@@ -13,14 +13,14 @@ def configuration_translations():
     if request.args.get('delete'):
         delete = request.args.get('delete')
         tl = Translation.query.get(delete)
-        if tl.golive.customer_id == current_user.customer:
+        if tl.golive.customer_id == current_user.customer_id:
             Translation.query.filter_(Translation.id == delete).delete()
             db.session.commit()
         else:
             error_message = 'Translation not found'
 
     # fetch allowed golives for user
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
+    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
     allowed_golives = [gl.id for gl in golives]
     golive_choices = [(gl.id, gl.id) for gl in golives]
 
@@ -40,7 +40,7 @@ def configuration_translations():
             error_message = 'A translation with following properties already exists: ' + form.golive.data + \
                             ', ' + form.translation_key.data + ', ' + form.from_value.data
 
-    translations = db.session.query(Translation).join(GoLive).filter(GoLive.customer_id == current_user.customer)
+    translations = db.session.query(Translation).join(GoLive).filter(GoLive.customer_id == current_user.customer_id)
 
     return render_template('configuration/translations.html', nbar='configuration', **locals())
 
@@ -52,13 +52,13 @@ def configuration_parameters():
     if request.args.get('delete'):
         delete = request.args.get('delete')
         Parameter.query.filter(and_(Parameter.id == delete,
-                                    Parameter.customer_id == current_user.customer)).delete(synchronize_session='fetch')
+                                    Parameter.customer_id == current_user.customer_id)).delete(synchronize_session='fetch')
         db.session.commit()
 
     parameters = Parameter.query.all()
 
     # fetch golives
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
+    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
     golive_choices = [('', '')] + [(gl.id, gl.id) for gl in golives]
 
     # init form
@@ -70,7 +70,7 @@ def configuration_parameters():
         if form.validate_on_submit():
 
             parameter = Parameter(parameter=form.parameter.data, value=form.value.data,
-                                      golive_id=form.golive.data, customer_id=current_user.customer)
+                                  golive_id=form.golive.data, customer_id=current_user.customer_id)
 
             try:
                 db.session.add(parameter)
@@ -97,16 +97,13 @@ def configuration_sequences():
             error_message = 'Number sequence in use, can\'t be deleted'
         else:
             NumberSequence.query.filter(and_(NumberSequence.id == delete,
-                                                NumberSequence.customer_id == current_user.customer))\
+                                             NumberSequence.customer_id == current_user.customer_id))\
                 .delete(synchronize_session='fetch')
             db.session.commit()
+            message = 'Number sequence deleted'
 
-    sequences = NumberSequence.query.filter_by(customer_id=current_user.customer)
+    sequences = NumberSequence.query.filter_by(customer_id=current_user.customer_id)
     # sequences = NumberSequence.query.all()
-
-    # generate example number
-    for s in sequences:
-        s.example = s.prefix + str(s.start).zfill(s.length)
 
     # init form
     form = NumberSequenceForm()
@@ -115,9 +112,12 @@ def configuration_sequences():
         if form.validate_on_submit():
 
             sequence = NumberSequence(name=form.name.data, prefix=form.prefix.data, start=form.start.data
-                                      , length=form.length.data, customer_id=current_user.customer)
+                                      , length=form.length.data, customer_id=current_user.customer_id)
+            sequence.set_example()
             db.session.add(sequence)
             db.session.commit()
+
+            message = 'Number sequence added'
 
             sequences = NumberSequence.query.all()
         else:

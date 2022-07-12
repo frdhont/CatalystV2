@@ -6,6 +6,7 @@ import pandas as pd
 from catalyst.loadfiles import create
 from catalyst.loadfiles import validate
 from catalyst.reporting import generate_migration_dashboard, get_migration_dashboard
+from catalyst.reporting.data_cleaning import generate_data_issues
 
 """"
 def test_create():
@@ -29,6 +30,9 @@ def test_param_filled_golive():
 
 def test_create_validation_dict():
     validate.create_validation_dict(2)
+
+def test_generate_data_issues():
+    generate_data_issues('MO01')
 
 
 def test_generate_migration_dashboard():

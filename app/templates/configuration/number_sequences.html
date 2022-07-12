@@ -41,13 +41,13 @@
 			</div>
 			{% endif %}
 			
-			{% if delete and not error_message %}
+			{% if message %}
 			<div class="col-12">
 			<div class="alert alert-success" role="alert">
 			  <div class="d-flex">
 				<div>
 				  <h4 class="alert-title">Success!</h4>
-				  <div class="text-muted">Number sequence deleted</div>
+				  <div class="text-muted">{{ message }}</div>
 				</div>
 			  </div>
 			</div>

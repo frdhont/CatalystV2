@@ -29,11 +29,10 @@
 	</script>
 	
 	<!-- Datatables -->
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.12.1/b-2.2.3/sl-1.4.0/datatables.min.css"/>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dist/css/editor.dataTables.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dist/js/datatables.css') }}"/>
+	<script src="{{ url_for('static', filename='dist/js/datatables.js') }}" defer></script>
+	<!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dist/css/editor.dataTables.css') }}"-->
 	 
-	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jqc-1.12.4/dt-1.12.1/b-2.2.3/sl-1.4.0/datatables.min.js"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='dist/js/dataTables.editor.js') }}"></script>
 	
 	<!-- List JS -->
     <script src="{{ url_for('static', filename='dist/libs/list.js/dist/list.min.js') }}" defer></script>

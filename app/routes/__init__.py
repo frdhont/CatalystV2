@@ -11,14 +11,14 @@ from flask_login import current_user, login_required
 def index():
 
 
-    golives = GoLive.query.filter_by(customer_id=current_user.customer)
+    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
     golive_count = golives.count()
 
     allowed_golives = [gl.id for gl in golives]
     entity_count = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).count()
 
     try:
-        dashboard, labels, legacy_values, scope_values, loadfile_values, issues_values = get_migration_dashboard(current_user.customer)
+        dashboard, labels, legacy_values, scope_values, loadfile_values, issues_values = get_migration_dashboard(current_user.customer_id)
         if dashboard.empty:
             dashboard_available = False
     except TypeError as e:

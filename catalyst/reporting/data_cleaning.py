@@ -39,7 +39,8 @@ def generate_data_issues(golive_id):
 
 def create_cerberus_validation_dict(entity_id):
     # fetch all the rules
-    rules = CleansingRule.query.filter(and_(entity_id=entity_id, type='cerberus', active='True'))
+    rules = CleansingRule.query.filter(and_(CleansingRule.entity_id == entity_id, CleansingRule.type == 'cerberus'
+                                            , CleansingRule.active == 'True'))
     rules_df = pd.read_sql(rules.statement, rules.session.bind)
 
     # fetch number fields
@@ -59,7 +60,6 @@ def create_cerberus_validation_dict(entity_id):
 
         for i, r in field_rules.iterrows():
             rule = r['rule']
-            print(rule)
             criteria = r['criteria']
 
             # convert text values to int if possible
@@ -95,10 +95,10 @@ def generate_cerberus_data_issues(entity_id):
     # fetch entity & rules
     entity = Entity.query.get(entity_id)
     rules = CleansingRule.query.filter_by(entity_id=entity_id)
-    rules_df = pd.read_sql(rules.statement, rules.session.bind)
+    # rules_df = pd.read_sql(rules.statement, rules.session.bind)
 
     # fetch loadfile
-    df = get_loadfile(entity_id)
+    df = get_loadfile(entity_id, validated=False)
     validation_dict = json.loads(entity.data_cleansing_json)
     # print(validation_dict)
 
@@ -131,9 +131,9 @@ def generate_cerberus_data_issues(entity_id):
 
     conn = config.sql_connect(db=entity.golive.customer.database_name)
     conn = conn.connect()
-
+    print(issues)
     with conn:
-        issues.to_sql('reporting.data_issues', conn, schema='reporting', if_exists='append', index=False)
+        issues.to_sql('data_issues', conn, schema='reporting', if_exists='append', index=False)
 
 
 def generate_pandas_data_issues(rules):
