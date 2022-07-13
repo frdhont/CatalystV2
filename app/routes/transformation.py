@@ -9,8 +9,7 @@ import sqlalchemy.exc
 from sqlalchemy.exc import ProgrammingError, IntegrityError
 import config
 import pandas as pd
-import json
-
+import re
 
 @app.route('/transformation/entities', methods=['GET', 'POST'])
 @login_required
@@ -90,6 +89,16 @@ def entities_fields(entity_id):
     entity = Entity.query.get(entity_id)
 
     if entity is not None:
+        # delete if requested
+        if request.args.get('delete'):
+            delete = request.args.get('delete')
+            try:
+                EntityField.query.filter_by(id=delete).delete(synchronize_session='fetch')
+                db.session.commit()
+            except IntegrityError as e:
+                error_message = 'Can\'t delete field, linked object exists'
+                db.session.rollback()
+
         # fetch all field data
         fields = EntityField.query.filter_by(entity_id=entity.id)
 
@@ -107,6 +116,13 @@ def entities_fields(entity_id):
         print(num_seq)
 
         if request.method == 'POST':
+
+            try:
+                re.compile(form.regex_validation.data)
+            except re.error:
+                error_message = form.regex_validation.data + ' is not a valid regex format'
+                return render_template('transformation/entity_fields.html', nbar='configuration', **locals())
+
             if form.validate_on_submit():
                 # print(form.number_sequence.data)
                 #print(form.translation_key.data.type)
@@ -132,6 +148,52 @@ def entities_fields(entity_id):
                 print(form.errors)
 
     return render_template('transformation/entity_fields.html', nbar='transformation', **locals())
+
+
+@app.route('/transformation/entities/fields/<field_id>', methods=['GET', 'POST'])
+@login_required
+def entities_field_edit(field_id):
+    field = EntityField.query.get(field_id)
+
+    if field is not None:
+        # init form
+        form = EntityFieldForm()
+
+        # fetch all form choices and pass to form
+        translation_types = db.session.query(Translation.translation_key).distinct()
+        translation_choices = [('', '')] + [(tl.translation_key, tl.translation_key) for tl in translation_types]
+        form.translation_key.choices = translation_choices
+
+        num_seq = db.session.query(NumberSequence.id, NumberSequence.name).distinct()
+        num_seq = [('', '')] + [(n.id, n.name) for n in num_seq]
+        form.number_sequence.choices = num_seq
+
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                # print(form.number_sequence.data)
+                #print(form.translation_key.data.type)
+
+                field.precision = form.precision.data
+                allow_null = form.allow_null.data
+                description = form.description.data
+                mapping_type = form.mapping_type.data
+                default_value = form.default.data
+                parameter = form.parameter.data
+                number_sequence_id = form.number_sequence.data
+                source_field = form.source_field.data
+                translation_key = form.translation_key.data
+                regex_validation = form.regex_validation.data
+                type = form.type.data
+
+                db.session.commit()
+
+                return render_template('transformation/entity_field_edit.html', nbar='configuration', **locals())
+
+            else:
+                print(form.errors)
+                error_message = form.errors
+
+    return render_template('transformation/entity_field_edit.html', nbar='transformation', **locals())
 
 
 @app.route('/transformation/entities/preview/<entity_id>')

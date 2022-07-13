@@ -4,6 +4,14 @@ from catalyst.models import CleansingRule, Entity
 from sqlalchemy import and_
 from catalyst.loadfiles import create, source_data
 import catalyst
+import re
 
-entity = Entity.query.get(2)
-df = source_data.get_source_data(entity)
+# pattern is a string containing the regex pattern
+pattern = "[.*"
+
+try:
+    re.compile(pattern)
+
+except re.error:
+    print("Non valid regex pattern")
+    exit()
