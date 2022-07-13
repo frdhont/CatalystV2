@@ -56,7 +56,8 @@
                           <th>Description</th>
                           <th>Target system</th>
                           <th>Source view</th>
-						  <th>Validation JSON</th>
+						  <th>Entity group</th>
+						  <th>Active</th>
 						  <th>Actions</th>
 
                         </tr>
@@ -67,9 +68,10 @@
                           <td>{{ e.golive_id }}</td>
                           <td>{{ e.entity }}</td>
 						  <td>{{ e.description if e.description}}</td>
-						  <td>{{ e.target_system }}</td>
-						  <td>{{ e.source_view }}</td>
-						  <td>{% if  e.validation_json %}Present{% else %}Not present{% endif %}</td>
+						  <td>{{ e.target_system if e.target_system }}</td>
+						  <td>{{ e.source_view if e.source_view }}</td>
+						  <td>{{ e.entity_group if e.entity_group }}</td>
+						  <td>{{ e.active }}</td>
                           
 						  <td>
                             <div class="btn-list flex-nowrap">
@@ -103,6 +105,10 @@
 								<a href="{{ url_for('entities_preview', entity_id=e.id) }}" class="dropdown-item">
 									<!--<i class="ti ti-copy"></i>-->
 									Clone entity
+								</a>
+								<a href="{{ url_for('entities', toggle_activate=e.id) }}" class="dropdown-item">
+									<!--<i class="ti ti-copy"></i>-->
+									{% if e.active == True %} Deactivate {% else %} Activate {% endif %}
 								</a>
                                 </div>
                               </div>
@@ -138,6 +144,10 @@
             <div class="mb-3">
               <label class="form-label">{{ form.entity.label }}</label>
               {{ form.entity(class_="form-control") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.group.label }}</label>
+              {{ form.group(class_="form-control") }}
             </div>
 			<div class="mb-3">
               <label class="form-label">{{ form.description.label }}</label>

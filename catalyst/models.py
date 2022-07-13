@@ -50,6 +50,15 @@ class User(db.Model, UserMixin):
         # return the value of the active column instead
         return self.active
 
+    @property
+    def allowed_golives(self):
+        golives = GoLive.query.filter_by(customer_id=self.customer_id)
+        allowed_golives = [gl.id for gl in golives]
+        return allowed_golives
+
+
+
+
 
 @login.user_loader
 def load_user(user_id):
@@ -148,10 +157,13 @@ class Entity(db.Model):
     allow_unknown = db.Column(db.Boolean, default=True)
     code_column = db.Column(db.String(255), nullable=False, default='code')
     data_cleansing_json = db.Column(db.String)
+    entity_group = db.Column(db.String(255))
+    active = db.Column(db.Boolean, default=True, nullable=False)
 
     entity_fields = relationship("EntityField", back_populates="entity", cascade="all,delete")
     cleansing_rules = relationship("CleansingRule", back_populates="entity")
     export_details = relationship("ExportDetail", back_populates="entity")
+    scope_rules = relationship("ScopeRule", back_populates="entity")
 
     __table_args__ = (
         # combination of entity & golive must be unique
@@ -160,6 +172,16 @@ class Entity(db.Model):
 
     # golive = db.relationship('GoLive', backref=backref("entity_golives", lazy="dynamic"), foreign_keys='Entity.golive_id')
     golive = relationship("GoLive", back_populates="entities")
+
+    @property
+    def toggle_activate(self):
+        # override UserMixin property which always returns true
+        # return the value of the active column instead
+        if self.active is True:
+            self.active = False
+        else:
+            self.active = True
+        db.session.commit()
 
     def clone(self, new_golive=None):
         print('Cloning entity ' + self.entity)
@@ -219,6 +241,7 @@ class EntityField(db.Model):
     golive = db.relationship('GoLive', backref=backref("golives", lazy="dynamic"),
                                foreign_keys='EntityField.golive_id')
     number_sequence = db.relationship("NumberSequence", back_populates="entity_fields")
+    scope_rules = db.relationship("ScopeRule", back_populates="entity_field")
 
     # combination of entity id & field name must be unique
     __table_args__ = (
@@ -272,7 +295,7 @@ class CleansingRule(db.Model):
     description = db.Column(db.String(255), nullable=False)
     rule = db.Column(db.String)
     criteria = db.Column(db.String)
-    active = db.Column(db.Boolean())
+    active = db.Column(db.Boolean(), default=True)
     type = db.Column(db.String(20), nullable=False)
 
     # entity_id = db.Column(db.Integer, nullable=False)
@@ -388,3 +411,14 @@ class Database(db.Model):
     TO DO: encrypt & decrypt password
     https://www.geeksforgeeks.org/how-to-encrypt-and-decrypt-strings-in-python/
     """
+
+
+class ScopeRule(db.Model):
+    __tablename__ = 'scope_rules'
+
+    id = db.Column(db.Integer, primary_key=True)
+    entity_id = db.Column(db.Integer, db.ForeignKey('entities.id'), nullable=False)
+    entity_field_id = db.Column(db.Integer, db.ForeignKey('entity_fields.id'), nullable=False)
+
+    entity = db.relationship('Entity', back_populates="scope_rules")
+    entity_field = db.relationship('EntityField', back_populates="scope_rules")

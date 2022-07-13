@@ -7,6 +7,7 @@ import pandas as pd
 from azure.storage.blob import BlobClient, BlobServiceClient
 from pathlib import Path
 import os
+from sqlalchemy import and_
 
 
 def create(gl):
@@ -20,7 +21,7 @@ def create(gl):
 
     # fetch all entities for specified golive
     # print(golive.id)
-    entities = Entity.query.filter_by(golive_id=golive.id)
+    entities = Entity.query.filter(and_(Entity.golive_id == golive.id, Entity.active is True))
 
     # map all entities
     for entity in entities:

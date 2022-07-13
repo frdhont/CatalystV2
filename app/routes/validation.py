@@ -2,7 +2,7 @@ from flask import render_template, request
 from app import app, db
 from app.forms import CleansingForm
 from catalyst import create_task
-from catalyst.models import Customer, CleansingRule, GoLive
+from catalyst.models import Customer, CleansingRule, GoLive, Entity, EntityField
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 import config
@@ -17,11 +17,43 @@ def cleansing_rules():
         delete = request.args.get('delete')
         CleansingRule.query.filter_by(id=delete).delete(synchronize_session='fetch')
         db.session.commit()
+    # init form & set allowed values
+    form = CleansingForm()
+
+    # allowed golives
+    allowed_golives = current_user.allowed_golives
+    # form.golive.choices = [(gl, gl) for gl in allowed_golives]
+
+    # allowed entities
+    # TODO: set allowed entities based on golive choice?
+    entities = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).order_by(Entity.golive_id,
+                                                                                   Entity.entity).all()
+    allowed_entities = [e.id for e in entities]
+    # form.entity.choices = [(e.id, e.golive_id + ' - ' + e.entity) for e in entities]
+
+    # allowed fields
+    # TODO: set allowed fields based on entity choice?
+    fields = EntityField.query.filter(EntityField.entity_id.in_(allowed_entities)).all()
+    form.field.choices = [(f.id, f.entity.golive_id + ' - ' + f.entity.entity + ' - ' + f.field) for f in fields]
+
+    if form.validate_on_submit():
+        field = EntityField.query.get(form.field.data)
+
+        rule = CleansingRule(entity_id=field.entity_id, golive_id=field.entity.golive_id, entity_field_id=form.field.data
+                             , description=form.description.data, type=form.type.data
+                             , rule=form.rule.data, criteria=form.criteria.data)
+
+        try:
+            db.session.add(rule)
+            db.session.commit()
+        except IntegrityError as e:
+            db.session.rollback()
+
 
     cleansing_rules = CleansingRule.query.all()
     cleansing_rules = db.session.query(CleansingRule).join(GoLive).filter(GoLive.customer_id == current_user.customer_id)
 
-    form = CleansingForm
+
 
     return render_template('validation/cleansing_rules.html', nbar='validation', **locals())
 

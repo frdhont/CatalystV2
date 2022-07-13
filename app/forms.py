@@ -43,7 +43,7 @@ class RequiredIfFieldEqualTo(InputRequired):
         if other_field.data == self.value:
             print('Field equal to ' + self.value)
             super(RequiredIfFieldEqualTo, self).__call__(form, field)
-#"""
+
 
 class EntityForm(FlaskForm):
     golive = SelectField('Go live', validators=[validators.DataRequired()])
@@ -54,6 +54,7 @@ class EntityForm(FlaskForm):
     # scope_column = StringField('Scope column', validators=[validators.DataRequired()])
     validation_json = TextAreaField('Validation JSON', render_kw={"rows": 10, "cols": 11})
     allow_unknown = BooleanField('Allow unknown fields')
+    group = StringField('Group')
 
 
 class EntityFieldForm(FlaskForm):
@@ -111,12 +112,15 @@ class SignupForm(FlaskForm):
 
 
 class CleansingForm(FlaskForm):
-    golive = StringField('Go live', validators=[validators.DataRequired()])
-    entity = StringField('Entity', validators=[validators.DataRequired()])
-    field = DateField('Field', validators=[validators.DataRequired()])
+    # golive = SelectField('Go live', validators=[validators.DataRequired()])
+    # entity = SelectField('Entity', validators=[validators.DataRequired()])
+    field = SelectField('Field', validators=[validators.DataRequired()])
     description = StringField('Description', validators=[validators.DataRequired()])
     rule = StringField('Rule', validators=[validators.DataRequired()])
-    active = BooleanField('Active')
+    type = SelectField('Type', validators=[validators.DataRequired()] , choices=[('cerberus', 'Cerberus')
+        , ('list', 'List')])
+    criteria = StringField('Criterium', validators=[validators.DataRequired()])
+    # active = BooleanField('Active')
 
 
 class NumberSequenceForm(FlaskForm):

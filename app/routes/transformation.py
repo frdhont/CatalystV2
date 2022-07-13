@@ -16,19 +16,27 @@ import json
 @login_required
 def entities():
 
+    toggle_activate = request.args.get('toggle_activate')
+    if toggle_activate:
+        entity = Entity.query.get(toggle_activate)
+        entity.toggle_activate
+        print('Entity toggle activate')
+
     # fetch allowed golives for user
-    golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
-    allowed_golives = [gl.id for gl in golives]
-    golive_choices = [(gl.id, gl.id) for gl in golives]
+    # golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
+    # allowed_golives = [gl.id for gl in golives]
+    allowed_golives = current_user.allowed_golives
+    golive_choices = [(gl, gl) for gl in allowed_golives]
 
     # init form + set go live choices to allowed values
     form = EntityForm()
-    form.golive.choices = [(gl.id, gl.id) for gl in golives]
+    form.golive.choices = golive_choices
 
     if form.validate_on_submit():
 
         entity = Entity(golive_id=form.golive.data, entity=form.entity.data, description=form.description.data,
-                        target_system=form.target_system.data, source_view=form.source_view.data,
+                        target_system=form.target_system.data, source_view=form.source_view.data
+                        , entity_group=form.group.data
                         # scope_column=form.scope_column.data
                         )
 
@@ -39,7 +47,7 @@ def entities():
             db.session.rollback()
             error_message = 'Entity \'' + entity.entity + '\' already exists for go-live ' + entity.golive_id
 
-    entities = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).all()
+    entities = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).order_by(Entity.golive_id, Entity.entity).all()
 
     return render_template('transformation/entities.html', nbar='transformation', **locals())
 
@@ -49,12 +57,6 @@ def entities():
 def entities_edit(entity_id):
     entity = Entity.query.get(entity_id)
     #print(entity.allow_unknown)
-
-    regenerate_json = request.args.get('regenerate_json')
-    if regenerate_json == '1':
-        create_validation_dict(entity_id)
-        print('Regenerating validation dict')
-
 
     form = EntityForm()
 

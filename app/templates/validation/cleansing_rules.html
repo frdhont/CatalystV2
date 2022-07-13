@@ -121,11 +121,49 @@
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">New cleansing rule</h5>
+            <h5 class="modal-title">New entity</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-		 
+		  <form method="post">
+		  {{ form.csrf_token }}
+
+			<div class="mb-3">
+              <label class="form-label">{{ form.field.label }}</label>
+              {{ form.field(class_="form-select") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.type.label }}</label>
+              {{ form.type(class_="form-select") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.description.label }}</label>
+              {{ form.description(class_="form-control") }}
+            </div>
+			
+			<div class="mb-3">
+              <label class="form-label">{{ form.rule.label }}</label>
+              {{ form.rule(class_="form-control") }}
+            </div>
+			<div class="mb-3">
+              <label class="form-label">{{ form.criteria.label }}</label>
+              {{ form.criteria(class_="form-control") }}
+            </div>
+			
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-6">
+                
+              </div>
+            </div>
+          </div>
+		  <div class="card-footer text-end">
+			  <div class="d-flex">
+				<button type="submit" class="btn btn-primary ms-auto">Add</button>
+			  </div>
+		  </div>
+		  </form>
         </div>
       </div>
     </div>
