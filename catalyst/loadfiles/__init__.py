@@ -21,7 +21,7 @@ def create(gl):
 
     # fetch all entities for specified golive
     # print(golive.id)
-    entities = Entity.query.filter(and_(Entity.golive_id == golive.id, Entity.active is True))
+    entities = Entity.query.filter(and_(Entity.golive_id == golive.id, Entity.active == True))
 
     # map all entities
     for entity in entities:
@@ -29,7 +29,9 @@ def create(gl):
         loadfile = mapping.map_entity(entity)
 
         if loadfile is not None:
-
+            # generating validation dict
+            print('Generating validation dict')
+            validate.create_validation_dict(entity.id)
             # validate generated loadfile
             print('Validating loadfile')
             validated_lf = validate.validate_loadfile(loadfile, entity)
@@ -41,8 +43,10 @@ def create(gl):
 
             with conn:
                 print('Storing loadfiles in SQL DB')
-                validated_lf.to_sql(entity.golive_id + '_' + entity.entity, conn, schema='loadfiles', if_exists='replace', index=False)
-                cleaned_lf.to_sql(entity.golive_id + '_' + entity.entity, conn, schema='loadfiles_validated', if_exists='replace', index=False)
+                validated_lf.to_sql(entity.golive_id + '_' + entity.entity, conn, schema='loadfiles'
+                                    , if_exists='replace', index=False, chunksize=1000)
+                cleaned_lf.to_sql(entity.golive_id + '_' + entity.entity, conn, schema='loadfiles_validated'
+                                  , if_exists='replace', index=False, chunksize=1000)
 
             # export loadfile
             export_loadfile(entity, cleaned_lf)

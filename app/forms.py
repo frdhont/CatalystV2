@@ -69,7 +69,7 @@ class EntityFieldForm(FlaskForm):
         , ('one_to_one', 'One to one'), ('translation', 'Translation'), ('parameter', 'Parameter')
         , ('number_sequence', 'Number sequence'), ('transformation', 'Transformation')])
     default = StringField('Default value', filters=[lambda x: x or None])  # lambda to insert NULL instead of "" to sql
-    parameter = StringField('Parameter', filters=[lambda x: x or None])
+    parameter = SelectField('Parameter', validators=[validators.Optional()], filters=[lambda x: x or None])
     source_field = StringField('Source field', filters=[lambda x: x or None])
     translation_key = SelectField('Translation key', validators=[validators.Optional()], filters=[lambda x: x or None])
     regex_validation = StringField('Regex validation', filters=[lambda x: x or None])
@@ -102,7 +102,7 @@ class SignupForm(FlaskForm):
     email = EmailField('Email', [validators.DataRequired(), validators.Email()])
     first_name = StringField('First name', [validators.DataRequired()])
     last_name = StringField('Last name', [validators.DataRequired()])
-    customer = StringField('Customer', [validators.DataRequired()])
+    customer = SelectField('Customer', [validators.DataRequired()], filters=[lambda x: x or None])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match')

@@ -7,6 +7,7 @@ from sqlalchemy import and_
 from app import db
 import json
 from cerberus import Validator
+from flask_login import current_user
 
 
 def generate_data_issues(golive_id):
@@ -34,7 +35,7 @@ def generate_data_issues(golive_id):
         create_cerberus_validation_dict(entity_id)
         generate_cerberus_data_issues(entity_id)
         # TODO: pandas issues not working atm, but didn't want to remove for later use
-        # pandas_issues = generate_cerberus_data_issues()
+        # pandas_issues = generate_cerberus_data_issues(entity_id)
 
 
 def create_cerberus_validation_dict(entity_id):
@@ -108,7 +109,7 @@ def generate_cerberus_data_issues(entity_id):
     # convert df to dict for validation
     dic = df.to_dict(orient='records')
 
-    issues = pd.DataFrame(columns=['code', 'rule_id', 'golive', 'entity', 'field', 'issue', 'value'])
+    issues = pd.DataFrame(columns=['customer_id', 'golive', 'code', 'rule_id', 'entity', 'field', 'issue', 'value'])
     for item in dic:
         if not v.validate(item):
             # get errors from cerberus
@@ -119,7 +120,8 @@ def generate_cerberus_data_issues(entity_id):
             field = error_df['index'][0]
             issue_desc = error_df[0][0]
 
-            issue = pd.DataFrame({'golive': entity.golive_id,
+            issue = pd.DataFrame({'customer_id': entity.golive.customer_id,
+                                  'golive': entity.golive_id,
                                     'code': item[entity.code_column],
                                     'rule_id': None,
                                     'entity': entity.entity,
@@ -136,28 +138,47 @@ def generate_cerberus_data_issues(entity_id):
         issues.to_sql('data_issues', conn, schema='reporting', if_exists='append', index=False)
 
 
-def generate_pandas_data_issues(rules):
+def generate_pandas_data_issues(entity_id):
     issues = pd.DataFrame(columns=['code', 'rule_id', 'golive', 'entity', 'field', 'issue', 'value'])
+    rules = CleansingRule.query.filter(and_(CleansingRule.entity_id == entity_id, CleansingRule.type == 'pandas'
+                                            , CleansingRule.active == 'True'))
+
+    loadfile = get_loadfile(entity_id, validated=False)
 
     for r in rules:
         field = EntityField.query.filter_by(id=r.entity_field).first()
         entity = Entity.query.filter_by(id=field.entity_id).first()
 
-        df = get_loadfile(entity.entity_id)
-
         issue = pd.DataFrame(columns=['code', 'issue', 'value'])
 
-        df_filtered = df.query(r.rule, engine='python')[[field.field]]
-        issue['value'] = df_filtered[field.field]
-        issue['issue'] = r.description
-        issue['rule_id'] = r.id
-        issue['entity'] = entity.entity_id
-        issue['field'] = field.field
+        df_filtered = loadfile.query(r.rule, engine='python')[[field.field]]
+        issue['code'] = ''
         issue['golive'] = entity.golive_id
+        issue['entity'] = entity.entity
+        issue['field'] = field.field
+        issue['issue'] = r.description
+        issue['value'] = df_filtered[field.field]
+        issue['rule_id'] = r.id
+
         # df_filtered = df_filtered.rename(columns={field: "value"})
 
         issues = issues.append(issue)
 
-    issues.to_csv('test.csv', index=False)
+    print(issues)
+    #issues.to_csv('test.csv', index=False)
 
     return issues
+
+
+def get_cleansing_issues_count():
+        database = current_user.customer.database_name
+
+        conn = config.sql_connect(database)
+        conn = conn.connect()
+
+        count = pd.read_sql('select count(0) from reporting.data_issues where customer_id = \''
+                            + current_user.customer_id + '\'', conn).iloc[0][0]
+        print(count)
+
+        return count
+

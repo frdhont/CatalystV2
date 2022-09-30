@@ -52,12 +52,10 @@ class User(db.Model, UserMixin):
 
     @property
     def allowed_golives(self):
-        golives = GoLive.query.filter_by(customer_id=self.customer_id)
+        # TODO: filter only on active golives
+        golives = GoLive.query.filter(GoLive.customer_id == self.customer_id)
         allowed_golives = [gl.id for gl in golives]
         return allowed_golives
-
-
-
 
 
 @login.user_loader
@@ -89,13 +87,13 @@ class Customer(db.Model):
     # database_id = db.Column(db.Integer, db.ForeignKey('databases.id'), nullable=True)  # golive can be empty
 
     parameters = db.relationship("Parameter", back_populates="customer")
+    translations = db.relationship("Translation", back_populates="customer")
     number_sequences = db.relationship("NumberSequence", back_populates="customer")
     databases = db.relationship("Database", back_populates="customer")
     # primary_database = db.relationship("Database", back_populates="customer")
 
     # relationships
     users = relationship("User", back_populates="customer")
-
 
 
 class GoLive(db.Model):
@@ -109,10 +107,21 @@ class GoLive(db.Model):
     last_generated = db.Column(db.DateTime)
     # data_issues_dict = db.Column(db.String)
     parameters = db.relationship("Parameter", back_populates="golive")
+    active = db.Column(db.Boolean, default=True)
 
     customer = db.relationship('Customer', backref=backref("customers", lazy="dynamic"), foreign_keys='GoLive.customer_id')
     entities = relationship("Entity", back_populates="golive", cascade="all,delete")
     translations = relationship("Translation", back_populates="golive")
+
+    @property
+    def toggle_activate(self):
+        # override UserMixin property which always returns true
+        # return the value of the active column instead
+        if self.active is True:
+            self.active = False
+        else:
+            self.active = True
+        db.session.commit()
 
     def clone(self, new_golive):
         if GoLive.query.get(new_golive) is not None:
@@ -175,8 +184,7 @@ class Entity(db.Model):
 
     @property
     def toggle_activate(self):
-        # override UserMixin property which always returns true
-        # return the value of the active column instead
+
         if self.active is True:
             self.active = False
         else:
@@ -271,15 +279,17 @@ class Translation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     golive_id = db.Column(db.String(20), db.ForeignKey('golives.id'), nullable=False)
+    customer_id = db.Column(db.String(20), db.ForeignKey('customers.id'), nullable=False)
     translation_key = db.Column(db.String(255), nullable=False)
     from_value = db.Column(db.String(500))
     to_value = db.Column(db.String)
 
     golive = db.relationship('GoLive', back_populates="translations")
+    customer = db.relationship("Customer", back_populates="translations")
 
     __table_args__ = (
         # combination of golive, translation_key & from_value must be unique
-        db.UniqueConstraint('golive_id', 'translation_key', 'from_value'),
+        db.UniqueConstraint('customer_id','golive_id', 'translation_key', 'from_value'),
     )
 
 

@@ -1,7 +1,4 @@
-- front end copy entity &copy go-live
-- export loadfiles
+TODO: add chunksize=500, method='multi' to all pandas to_sql
 - microsoft login
-- add pytest module
-- pandas lambda function for transformation rules
 - add possibility to run pandas query data validations next to cerberus
 - add admin user role and restrict admin section

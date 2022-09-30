@@ -28,6 +28,7 @@ def map_entity(entity):
         # map all fields except default & parameter
         for field in fields:
             field_name = field.field
+            print('## Mapping field ' + field_name + ' ##')
             source_field = field.source_field
 
             if field.mapping_type == 'one_to_one':
@@ -71,15 +72,18 @@ def map_entity(entity):
                         df[field_name] = source_data[source_field].map(dic)
 
             if field.mapping_type == 'transformation':
-                lam = 'lambda x:' + field.transformation_rule
-                print('## Setting field ' + field_name + ' as calculation from transformation rule: \'' + lam + '\'')
+                print('## Setting field ' + field_name + ' as calculation from transformation rule')
                 try:
+                    lam = 'lambda x:' + field.transformation_rule
                     df[field_name] = source_data[source_field].apply(eval(lam))
                     # print(s)
                 except SyntaxError as e:
                     df[field_name] = '## Invalid syntax ##'
                     print('Invalid lambda syntax')
                     pass
+                except TypeError as e:
+                    df[field_name] = '## No Transformation rule ##'
+                    print('No transformation rule set')
 
             if field.mapping_type == 'number_sequence':
                 start = field.number_sequence.start

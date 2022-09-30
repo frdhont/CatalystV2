@@ -2,14 +2,14 @@ from flask import render_template, request
 from app import app, db
 from app.forms import EntityForm, GoLiveForm, EntityFieldForm
 from catalyst import create_task
-from catalyst.models import Entity, GoLive, Translation, EntityField, NumberSequence
-from catalyst.loadfiles.validate import create_validation_dict
+from catalyst.models import Entity, GoLive, Translation, EntityField, NumberSequence, Parameter
 from flask_login import current_user, login_required
 import sqlalchemy.exc
 from sqlalchemy.exc import ProgrammingError, IntegrityError
 import config
 import pandas as pd
 import re
+
 
 @app.route('/transformation/entities', methods=['GET', 'POST'])
 @login_required
@@ -106,22 +106,23 @@ def entities_fields(entity_id):
         form = EntityFieldForm()
 
         # fetch all form choices and pass to form
-        translation_types = db.session.query(Translation.translation_key).distinct()
-        translation_choices = [('', '')] + [(tl.translation_key, tl.translation_key) for tl in translation_types]
-        form.translation_key.choices = translation_choices
+        translation_types = db.session.query(Translation.translation_key).filter_by(customer_id=current_user.customer_id).distinct()
+        form.translation_key.choices = [('', '')] + [(tl.translation_key, tl.translation_key) for tl in translation_types]
 
-        num_seq = db.session.query(NumberSequence.id, NumberSequence.name).distinct()
-        num_seq = [('', '')] + [(n.id, n.name) for n in num_seq]
-        form.number_sequence.choices = num_seq
-        print(num_seq)
+        num_seq = NumberSequence.query.filter_by(customer_id=current_user.customer_id)
+        form.number_sequence.choices = [('', '')] + [(n.id, n.name) for n in num_seq]
+
+        parameters = db.session.query(Parameter.parameter).filter_by(
+            customer_id=current_user.customer_id).distinct()
+        form.parameter.choices = [('', '')] + [(tl.parameter, tl.parameter) for tl in parameters]
 
         if request.method == 'POST':
-
-            try:
-                re.compile(form.regex_validation.data)
-            except re.error:
-                error_message = form.regex_validation.data + ' is not a valid regex format'
-                return render_template('transformation/entity_fields.html', nbar='configuration', **locals())
+            if form.regex_validation.data:
+                try:
+                    re.compile(form.regex_validation.data)
+                except re.error:
+                    error_message = form.regex_validation.data + ' is not a valid regex format'
+                    return render_template('transformation/entity_fields.html', nbar='configuration', **locals())
 
             if form.validate_on_submit():
                 # print(form.number_sequence.data)
@@ -133,7 +134,8 @@ def entities_fields(entity_id):
                                     parameter=form.parameter.data,
                                     number_sequence_id=form.number_sequence.data,
                                     source_field=form.source_field.data, translation_key=form.translation_key.data,
-                                    regex_validation=form.regex_validation.data, type=form.type.data, golive_id=entity.golive_id)
+                                    regex_validation=form.regex_validation.data, type=form.type.data,
+                                    transformation_rule=form.transformation.data, golive_id=entity.golive_id)
 
 
                 try:
@@ -168,22 +170,28 @@ def entities_field_edit(field_id):
         num_seq = [('', '')] + [(n.id, n.name) for n in num_seq]
         form.number_sequence.choices = num_seq
 
+        parameters = db.session.query(Parameter.parameter).filter_by(
+            customer_id=current_user.customer_id).distinct()
+        form.parameter.choices = [('', '')] + [(tl.parameter, tl.parameter) for tl in parameters]
+
         if request.method == 'POST':
+            form.field.data = field.field
             if form.validate_on_submit():
                 # print(form.number_sequence.data)
                 #print(form.translation_key.data.type)
 
                 field.precision = form.precision.data
-                allow_null = form.allow_null.data
-                description = form.description.data
-                mapping_type = form.mapping_type.data
+                field.allow_null = form.allow_null.data
+                field.description = form.description.data
+                field.mapping_type = form.mapping_type.data
                 default_value = form.default.data
-                parameter = form.parameter.data
-                number_sequence_id = form.number_sequence.data
-                source_field = form.source_field.data
-                translation_key = form.translation_key.data
-                regex_validation = form.regex_validation.data
-                type = form.type.data
+                field.parameter = form.parameter.data
+                field.number_sequence_id = form.number_sequence.data
+                field.source_field = form.source_field.data
+                field.translation_key = form.translation_key.data
+                field.transformation_rule = form.transformation.data
+                field.regex_validation = form.regex_validation.data
+                field.type = form.type.data
 
                 db.session.commit()
 
@@ -230,6 +238,11 @@ def golives():
     clone = request.args.get('clone')
     if clone:
         create_task('clone_golive', clone)
+
+    toggle_activate = request.args.get('toggle_activate')
+    if toggle_activate:
+        gl = GoLive.query.get(toggle_activate)
+        gl.toggle_activate
 
     form = GoLiveForm()
 

@@ -29,7 +29,7 @@ def configuration_translations():
     form.golive.choices = golive_choices
 
     if form.validate_on_submit():
-        translation = Translation(golive=form.golive.data, translation_key=form.translation_key.data,
+        translation = Translation(golive_id=form.golive.data, translation_key=form.translation_key.data,
                                   from_value=form.from_value.data, to_value=form.to_value.data)
         db.session.add(translation)
 
@@ -55,8 +55,6 @@ def configuration_parameters():
                                     Parameter.customer_id == current_user.customer_id)).delete(synchronize_session='fetch')
         db.session.commit()
 
-    parameters = Parameter.query.all()
-
     # fetch golives
     golives = GoLive.query.filter_by(customer_id=current_user.customer_id)
     golive_choices = [('', '')] + [(gl.id, gl.id) for gl in golives]
@@ -78,11 +76,13 @@ def configuration_parameters():
             except IntegrityError as e:
                 db.session.rollback()
                 error_message = 'Parameter ' + parameter.parameter + ' already exists for golive ' + parameter.golive_id
+                parameters = Parameter.query.filter_by(customer_id=current_user.customer_id)
                 return render_template('configuration/parameters.html', nbar='configuration', **locals())
 
-            parameters = Parameter.query.all()
         else:
             error_message = form.errors
+
+    parameters = Parameter.query.filter_by(customer_id=current_user.customer_id)
 
     return render_template('configuration/parameters.html', nbar='configuration', **locals())
 
@@ -102,7 +102,7 @@ def configuration_sequences():
             db.session.commit()
             message = 'Number sequence deleted'
 
-    sequences = NumberSequence.query.filter_by(customer_id=current_user.customer_id)
+
     # sequences = NumberSequence.query.all()
 
     # init form
@@ -119,8 +119,9 @@ def configuration_sequences():
 
             message = 'Number sequence added'
 
-            sequences = NumberSequence.query.all()
         else:
             print(form.errors)
+
+    sequences = NumberSequence.query.filter_by(customer_id=current_user.customer_id)
 
     return render_template('configuration/number_sequences.html', nbar='configuration', **locals())

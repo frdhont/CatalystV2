@@ -53,6 +53,7 @@
                         <tr>
                           <th>Go live ID</th>
                           <th>Name</th>
+						  <th>Active</th>
 						  <th>Go-live date</th>
 						  <th>Loadfiles last generated</th>
 						  <th></th>
@@ -63,6 +64,7 @@
                         <tr>
                           <td>{{ gl.id }}</td>
                           <td>{{ gl.name if gl.name }}</td>
+						  <td>{% if gl.active == True %}Yes{% else %}No{% endif %}</td>
 						  <td>{{ gl.go_live_date }}</td>
 						  <td>{{ gl.last_generated.strftime('%Y-%m-%d %H:%M:%S') if gl.last_generated }}</td>
                           <td class="text-end">
@@ -75,6 +77,10 @@
 								<!-- Download SVG icon from http://tabler-icons.io/i/wand -->
 								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="6 21 21 6 18 3 3 18 6 21" /><line x1="15" y1="6" x2="18" y2="9" /><path d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" /><path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" /></svg>
 								Generate data
+							</a>
+							<a href="{{ url_for('golives', toggle_activate=gl.id) }}" class="btn d-none d-sm-inline-block">
+									<!--<i class="ti ti-copy"></i>-->
+									{% if gl.active == True %} Deactivate {% else %} Activate {% endif %}
 							</a>
                           </td>
                         </tr>

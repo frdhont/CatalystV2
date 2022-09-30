@@ -6,7 +6,6 @@ from flask_login import current_user, login_required
 import json
 
 
-
 @app.route('/admin/users', methods=['GET', 'POST'])
 @login_required
 # @roles_required('admin')
@@ -15,7 +14,6 @@ def admin_users():
     users = User.query.all()
     customers = Customer.query.all()
     form = SignupForm(request.form)
-    choices = [(customer.id, customer.id) for customer in customers]
     form.customer.choices = [(customer.id, customer.id) for customer in customers]
 
     # build json
@@ -31,7 +29,8 @@ def admin_users():
         if user:
             user_exists = True
         else:
-            user = User(email=form.email.data.lower(), first_name=form.first_name.data, last_name=form.last_name.data)
+            user = User(email=form.email.data.lower(), first_name=form.first_name.data, last_name=form.last_name.data
+                        , customer_id=form.customer.data)
             user.set_password(form.password.data)
             db.session.add(user)
             db.session.commit()

@@ -97,7 +97,7 @@
 						  <td>{{ c.description if c.description}}</td>
 						  <td>{{ c.rule }}</td>
 						  <td>{{ c.criteria }}</td>
-						  <td>{{ c.active if c.active }}</td>
+						  <td>{% if c.active == True %}Yes{% else %}No{% endif %}</td>
 						  <td></td>
 					
                         </tr>

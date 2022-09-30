@@ -22,6 +22,7 @@ def cleansing_rules():
 
     # allowed golives
     allowed_golives = current_user.allowed_golives
+    print(allowed_golives)
     # form.golive.choices = [(gl, gl) for gl in allowed_golives]
 
     # allowed entities
@@ -88,7 +89,7 @@ def validation_data_issues_detail(golive):
     golive = GoLive.query.filter_by(id=golive).first()
 
     if golive is not None:
-        sql = 'select * from reporting.' + golive.id + '_DataIssues'
+        sql = 'select * from reporting.data_issues where golive = \'' + golive.id + '\''
 
         conn = config.sql_connect(db=golive.customer.database_name)
         conn = conn.connect()

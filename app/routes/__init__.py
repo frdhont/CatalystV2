@@ -2,6 +2,7 @@ from flask import jsonify, render_template
 from catalyst.reporting import get_migration_dashboard
 from app import app
 from catalyst.models import Entity, GoLive
+from catalyst.reporting.data_cleaning import get_cleansing_issues_count
 from flask_login import current_user, login_required
 
 
@@ -16,6 +17,8 @@ def index():
 
     allowed_golives = [gl.id for gl in golives]
     entity_count = Entity.query.filter(Entity.golive_id.in_(allowed_golives)).count()
+
+    cleansing_issues_count = get_cleansing_issues_count()
 
     try:
         dashboard, labels, legacy_values, scope_values, loadfile_values, issues_values = get_migration_dashboard(current_user.customer_id)
